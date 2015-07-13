@@ -1,0 +1,11 @@
+﻿PowerShell
+CancellationToken
+Computation Expression
+Proxy for fun
+Performance monitoring
+Embrace
+
+TODO : https://github.com/c4fsharp/Dojo-Markov-Bot/tree/master/dojo
+
+Done ServicePointManager
+	> WebRequest limit becarefull can cause closed connection on async getresponse webrequest
