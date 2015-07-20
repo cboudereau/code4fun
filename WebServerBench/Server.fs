@@ -44,7 +44,7 @@ let message = "Echo"
 let content = Encoding.UTF8.GetBytes(message)
 
 let writer thinkTime (context : HttpListenerContext) = 
-    Thread.Sleep(thinkTime:int)
+    if(thinkTime > 0) then Thread.Sleep(thinkTime:int)
     let response = context.Response
     response.StatusCode <- 200
     response.ContentLength64 <- content.LongLength
@@ -54,7 +54,7 @@ let writer thinkTime (context : HttpListenerContext) =
 
 let asyncWriter thinkTime (context : HttpListenerContext) = 
     async { 
-        do! Async.Sleep(thinkTime)
+        if(thinkTime > 0) then do! Async.Sleep(thinkTime)
         let response = context.Response
         response.StatusCode <- 200
         response.ContentLength64 <- content.LongLength

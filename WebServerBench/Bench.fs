@@ -14,7 +14,7 @@ open System.Threading
 
 let asyncRequest i = 
     async {
-        let request = WebRequest.CreateHttp("http://port-sboudereau:8080")
+        let request = WebRequest.CreateHttp("http://localhost:8080")
         let! response = request.AsyncGetResponse()
         
         use responseStream = response.GetResponseStream()
@@ -33,7 +33,7 @@ let request i =
 [<Measure>] type rq
 [<Measure>] type s
 
-let maxRequest = 300000m<rq>
+let maxRequest = 100000m<rq>
 let thinkTime = 0
 let asyncServerWithThinkTime = asyncServer thinkTime
 let serverWithThinkTime = server thinkTime
@@ -66,13 +66,11 @@ let ``tpl client tpl server``()=
 let asyncCallAsParallel maxRequest = 
     let stopwatch = Stopwatch.StartNew()
 
-    let requests = 
         [1 .. maxRequest |> decimal |> int]
         |> List.map(asyncRequest)
         |> Async.Parallel
         |> Async.Ignore
-
-    Async.RunSynchronously(requests)
+    |> Async.RunSynchronously
     
     let result = (maxRequest / elapsed stopwatch) 
 

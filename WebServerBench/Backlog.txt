@@ -1,11 +1,14 @@
-﻿PowerShell
-CancellationToken
+﻿Powershell type provider
+PowerShell
 Computation Expression
 Proxy for fun
-Performance monitoring
 Embrace
+My own compiler
 
 TODO : https://github.com/c4fsharp/Dojo-Markov-Bot/tree/master/dojo
 
 Done ServicePointManager
 	> WebRequest limit becarefull can cause closed connection on async getresponse webrequest
+Done CancellationToken
+Done Powershell Teamcity
+Done Performance monitoring
