@@ -33,8 +33,8 @@ let request i =
 [<Measure>] type rq
 [<Measure>] type s
 
-let maxRequest = 1000m<rq>
-let thinkTime = 200
+let maxRequest = 300000m<rq>
+let thinkTime = 0
 let asyncServerWithThinkTime = asyncServer thinkTime
 let serverWithThinkTime = server thinkTime
 let elapsed (stopwatch:Stopwatch) = LanguagePrimitives.DecimalWithMeasure<s> (decimal stopwatch.ElapsedMilliseconds / 1000m)
@@ -43,6 +43,10 @@ let callAsTplSync maxRequest =
     let stopwatch = Stopwatch.StartNew()
     Parallel.ForEach([1 .. maxRequest |> decimal |> int], request) |> ignore
     printfn "%A" (decimal maxRequest / elapsed stopwatch)
+
+[<Fact(Timeout = 600000)>]
+let ``just call server only for bench purpose``()=  
+    callAsTplSync maxRequest
 
 [<Fact(Timeout = 600000)>]
 let ``tpl client async server``() = 
