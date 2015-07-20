@@ -4,6 +4,7 @@ Computation Expression
 Proxy for fun
 Embrace
 My own compiler
+Elixir
 
 TODO : https://github.com/c4fsharp/Dojo-Markov-Bot/tree/master/dojo
 
