@@ -13,3 +13,43 @@ let row = rateFile.Data |> Seq.head
 let priceFile = Prices()
 
 let priceRow = priceFile.Data |> Seq.head
+
+
+#r @"..\packages\FSharp.Data.2.2.5\lib\net40\FSharp.Data.dll"
+
+#r "System.Xml.Linq"
+
+open FSharp.Data
+
+type PersonXml = XmlProvider<"<root><firstName2>Clem</firstName2><name>boud</name></root>">
+
+let person = PersonXml.Parse("<root><firstName2>Clem</firstName2><name>Boudereau</name></root>")
+
+person.Name
+
+let xml = PersonXml.Root("clem", "boud")
+
+type Person = XmlProvider<"personSample.xml", SampleIsList=true>
+
+let p = Person.Parse("<root><firstName>clem</firstName></root>")
+
+let name = p.Name
+
+let realName = 
+    match name with
+    | None -> sprintf "%s" "empty name"
+    | Some value -> sprintf "%s" value
+
+realName
+
+type Price = 
+    | Closed
+    | Open of int
+
+let closed = Closed
+let pr = Open 10
+
+let viewPrice = 
+    match pr with
+    | Closed -> 0
+    | Open p -> p
