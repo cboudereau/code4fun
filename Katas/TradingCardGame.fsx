@@ -189,7 +189,7 @@ let hurt cards p2 =
     | Life point -> 
         let p2 = { p2 with life = Life point }
 //        displaySpeech p2.speak (sprintf "I have been hurted. Now I have %i life" (p2.life |> Life.value)) |> Async.RunSynchronously
-        displaySpeech p2.speak (sprintf "Je suis blessé. J'ai maitenant %i point(s) de vie" (p2.life |> Life.value)) |> Async.RunSynchronously
+        displaySpeech p2.speak (sprintf "Je suis blessé. J'ai maitenant %i points de vie" (p2.life |> Life.value)) |> Async.RunSynchronously
         p2
 
 
