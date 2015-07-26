@@ -179,13 +179,15 @@ let chooseOrder arbiter (s1,p1) (s2,p2) =
         arbiterIntroduce arbiter p2 |> Async.RunSynchronously
         ((s2,p2),(s1,p1))
 
-let startGame tellName tellStrategy = 
+let startGame arbiter tellName tellStrategy = 
     
     let p1 = tellName 1
     let s1 = tellStrategy 1
 
     let p2 = tellName 2
     let s2 = tellStrategy 2
+
+    let ((s1,p1),(s2,p2)) = chooseOrder arbiter (s1,p1) (s2,p2)
     
     let player1 = random |> newDeck |> newPlayer p1 (player1Voice |> asyncSpeak) s1
     let player2 = random |> newDeck |> newPlayer p2 (player2Voice |> asyncSpeak) s2 |> draw
@@ -330,7 +332,7 @@ let nameForTest i =
 
 let modeForTest _ = kamikaze
 
-let game = startGame name mode
+let game = startGame arbiterSpeak name mode
 
 let endGame = play arbiterSpeak game 
 
