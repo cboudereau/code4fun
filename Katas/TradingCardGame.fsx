@@ -13,8 +13,10 @@ arbiter.SelectVoice("Microsoft Hortense Desktop")
 
 let displaySpeech speaker text = 
     printfn "%s" text
-    speaker text
-//    async { return () }
+//    speaker text
+    async { 
+//        do! Async.Sleep 500
+        return () }
 
 let asyncSpeak (s:SpeechSynthesizer) text = 
     let asyncCompleted (prompt:Prompt) = 
@@ -152,7 +154,7 @@ let newPlayer name speaker strategy deck =
     let readyPlayer = player |> draw |> draw |> draw
 
 //    readyPlayer.speaker (sprintf "Hello I'm %s and I will hurt you!!!!!" name) |> Async.RunSynchronously
-    readyPlayer.speak (sprintf "Bonjour Je suis %s, Je vais te faire très mal!!!!!" name) |> Async.RunSynchronously
+    displaySpeech readyPlayer.speak (sprintf "Bonjour Je suis %s, Je vais te faire très mal!!!!!" name) |> Async.RunSynchronously
     readyPlayer
 
 let rnd = System.Random()
@@ -164,20 +166,26 @@ let newDeck random =
     |> List.sortBy random
     |> Deck
 
-let chooseOrder (s1,p1) (s2,p2) = 
+let chooseOrder arbiter (s1,p1) (s2,p2) = 
 //    let arbiterIntroduce player = arbiter.Speak(sprintf "Player %s is the first player" player)
-    let arbiterIntroduce player = arbiter.Speak(sprintf "%s est le premier joueur" player)
+    let arbiterIntroduce arbiter player = 
+        displaySpeech arbiter (sprintf "%s est le premier joueur" player)
     
     if (random p1 % 2 = 0) 
     then 
-        arbiterIntroduce p1
+        arbiterIntroduce arbiter p1 |> Async.RunSynchronously
         ((s1,p1), (s2,p2)) 
     else 
-        arbiterIntroduce p2
+        arbiterIntroduce arbiter p2 |> Async.RunSynchronously
         ((s2,p2),(s1,p1))
 
-let startGame person1 person2 = 
-    let ((s1,p1),(s2,p2)) = chooseOrder person1 person2
+let startGame tellName tellStrategy = 
+    
+    let p1 = tellName 1
+    let s1 = tellStrategy 1
+
+    let p2 = tellName 2
+    let s2 = tellStrategy 2
     
     let player1 = random |> newDeck |> newPlayer p1 (player1Voice |> asyncSpeak) s1
     let player2 = random |> newDeck |> newPlayer p2 (player2Voice |> asyncSpeak) s2 |> draw
@@ -189,7 +197,7 @@ let hurt cards p2 =
     | Life point -> 
         let p2 = { p2 with life = Life point }
 //        displaySpeech p2.speak (sprintf "I have been hurted. Now I have %i life" (p2.life |> Life.value)) |> Async.RunSynchronously
-        displaySpeech p2.speak (sprintf "Je suis blessé. J'ai maitenant %i points de vie" (p2.life |> Life.value)) |> Async.RunSynchronously
+        displaySpeech p2.speak (sprintf "Je suis blessé. J'ai maintenant %i points de vie" (p2.life |> Life.value)) |> Async.RunSynchronously
         p2
 
 
@@ -215,7 +223,7 @@ let turn arbiter game =
 let (|Dead|_|) life = 
     match life with
     | Life l when l <= 0 -> Some l
-    | Life l -> None
+    | Life _ -> None
 
 let rec play arbiter game = 
     match game with
@@ -247,9 +255,9 @@ let kamikaze p =
     let mana = countMana cards
     
 //    displaySpeech p.speaker (sprintf "I have choosen %A" cards) |> Async.RunSynchronously
-    displaySpeech p.speak (sprintf "J'ai choisi %A" cards) |> Async.RunSynchronously
+    displaySpeech p.speak (sprintf "%s a choisi %A" p.name cards) |> Async.RunSynchronously
 //    displaySpeech p.speaker (sprintf "I hurt you with %i mana!" mana) |> Async.RunSynchronously
-    displaySpeech p.speak (sprintf "Je t'ai blessé avec %i point de mana!" mana) |> Async.RunSynchronously
+    displaySpeech p.speak (sprintf "%s a attaqué avec %i point de mana!" p.name mana) |> Async.RunSynchronously
 
     cards, p
 
@@ -263,13 +271,13 @@ let human p =
         else
         
 //            displaySpeech p.speaker (sprintf "Choose a card of mana : %A" p.hand) |> Async.Start
-            displaySpeech p.speak (sprintf "Choisi l'une de ces cartes : %A" p.hand) |> Async.Start
+            displaySpeech p.speak (sprintf "%s, choisi l'une de ces cartes : %A" p.name p.hand) |> Async.Start
             let value = System.Console.ReadLine()
 
             match System.Int32.TryParse(value) with
             | (false, _) -> 
 //                displaySpeech p.speaker (sprintf "This is not a valid card.") |> Async.RunSynchronously
-                displaySpeech p.speak (sprintf "Cette carte n'est pas valide") |> Async.RunSynchronously
+                displaySpeech p.speak (sprintf "%s, cette carte n'est pas valide" p.name) |> Async.RunSynchronously
                 p |> askOneCard
             | (true, mana) -> 
                 let card = mana |> Mana |> Card
@@ -277,7 +285,7 @@ let human p =
                 | None, hand when hand |> List.isEmpty -> None, { p with hand=Hand hand }
                 | None, _ -> 
 //                    displaySpeech p.speaker (sprintf "Bad card, given a valid point of mana.") |> Async.RunSynchronously
-                    displaySpeech p.speak (sprintf "Mauvaise carte!") |> Async.RunSynchronously
+                    displaySpeech p.speak (sprintf "%s, mauvaise carte!" p.name) |> Async.RunSynchronously
                     askOneCard p
                 | Some card, hand -> 
                     Some card, { p with hand=Hand hand }
@@ -294,17 +302,42 @@ let human p =
     let mana = countMana cards
     
 //    displaySpeech p.speaker (sprintf "I have choosen %A and i hurt you with %i" cards mana) |> Async.RunSynchronously
-    displaySpeech p.speak (sprintf "J'ai choisi %A et je te blaisse avec %i point" cards mana) |> Async.RunSynchronously
+    displaySpeech p.speak (sprintf "J'ai choisi %A et je t'ai blessé avec %i point" cards mana) |> Async.RunSynchronously
     
     (cards,p)
 
-let game = (kamikaze, "Foufou") |> startGame (kamikaze, "Bouré")
+let arbiterSpeak = arbiter |> asyncSpeak
 
-let endGame = play (arbiter |> asyncSpeak) game 
+let name i = 
+    displaySpeech arbiterSpeak (sprintf "Choisissez le nom du joueur %i : " i) |> Async.Start
+    System.Console.ReadLine()
+
+let mode i = 
+    let rec internalMode () =
+        displaySpeech arbiterSpeak (sprintf "Choisissez le mode du joueur %i\n\t1 - Computer\n\t2 - Player" i) |> Async.Start
+        match System.Console.ReadLine() with
+        | "1" -> kamikaze
+        | "2" -> human
+        | _ ->
+            displaySpeech arbiterSpeak "Mode invalide" |> Async.RunSynchronously
+            internalMode ()
+    internalMode ()
+
+let nameForTest i = 
+    match i with
+    | 1 -> "Foufou"
+    | _ -> "Bourré"
+
+let modeForTest _ = kamikaze
+
+let game = startGame name mode
+
+let endGame = play arbiterSpeak game 
 
 match endGame with
 | End g -> 
 //    let message = sprintf "\n\nGame Over in %i turn! \nThe winner is %s\nYou loose %s !" g.pass g.looser.name g.winner.name
-    let message = sprintf "\n\nFin de la partie en %i tours! \nLe gagnant est %s\nTu as perdu %s !" g.pass g.looser.name g.winner.name
-    arbiter.Speak message
+    let message = sprintf "\n\nFin de la partie en %i tours! \nLe gagnant est %s\nTu as perdu %s !" g.pass g.winner.name g.looser.name
+    displaySpeech (arbiter |> asyncSpeak) message |> Async.RunSynchronously
+    System.Console.ReadLine() |> ignore
 | _ -> printfn "started"
