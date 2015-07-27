@@ -13,10 +13,10 @@ arbiter.SelectVoice("Microsoft Hortense Desktop")
 
 let displaySpeech speaker text = 
     printfn "%s" text
-    speaker text
-//    async { 
-////        do! Async.Sleep 500
-//        return () }
+//    speaker text
+    async { 
+        do! Async.Sleep 500
+        return () }
 
 let asyncSpeak (s:SpeechSynthesizer) text = 
     async {
@@ -62,13 +62,10 @@ type Life =
     static member attack cards life =
         match life with
         | Life point -> 
-            let damage = 
-                cards 
-                |> List.map(function Card (Mana d) -> d)
-                |> List.sum
+            let damage = cards |> List.sumBy(function Card (Mana d) -> d)
             (point - damage) |> Life.fromPoint
     static member hurt = function Life l -> l - 1 |> Life.fromPoint
-    static member fromPoint v = match v with _ when v < 0 -> Life 0 | value -> Life value
+    static member fromPoint v = max 0 v |> Life
     static member value = function Life l -> l
 
 type Hand = 
@@ -76,13 +73,15 @@ type Hand =
     static member add card hand = 
         match hand with
         | Hand cards -> Hand (card :: cards)
+    static member private toList hand = match hand with Hand h -> h
     static member remove card hand = 
-        match hand with
-        | Hand hand when hand |> List.exists (fun c -> c=card) -> 
-            let index = hand |> List.findIndex(fun c -> c=card)
-            let hand = hand |> List.mapi(fun i c -> (i,c)) |> List.filter(fun (i,_)-> i<>index) |> List.map(fun (_,c) -> c)
-            (Some card, hand)
-        | Hand hand -> None, hand
+        let equalCard = (=) card
+        let cards = hand |> Hand.toList
+        match cards |> List.tryFindIndex equalCard with
+        | Some index ->
+            let hand = cards |> List.mapi(fun i c -> (i,c)) |> List.filter(fun (i,_)-> i<>index) |> List.map(fun (_,c) -> c)
+            Some card, Hand hand
+        | None -> None, hand 
     static member take hand = 
         match hand with
         | Hand (card :: cards) -> (Some card, Hand cards)
@@ -94,7 +93,7 @@ type Hand =
             let highestCards = cards |> List.sortBy(function Card(Mana p)-> - p)
             Some (highestCards.Head), Hand highestCards.Tail
     static member empty = Hand []
-    static member isEmpty = function Hand hand -> match hand with [] -> true | _ -> false
+    static member isEmpty = function Hand hand -> hand |> List.isEmpty
 
 type Player = 
     { name: string
@@ -103,7 +102,26 @@ type Player =
       hand: Hand
       life: Life
       speak: string -> Async<unit>
-      strategy: Player -> Card list * Player }
+      play: Player -> Card list * Player }
+    static member addSlot p = 
+        let p = { p with slots = p.slots |> Slots.add }
+    //    displaySpeech p.speak (sprintf "%s win 1 slot and has now %i slots" p1.name (p1.slots |> Slots.count)) |> Async.RunSynchronously
+        displaySpeech p.speak (sprintf "%s a gagné 1 slot et a maintenant %i slots" p.name (p.slots |> Slots.count)) |> Async.RunSynchronously
+        p
+    static member draw p = 
+        match p.deck |> Deck.draw with
+        | None -> { p with life = p.life |> Life.hurt }
+        | Some (card, deck) -> 
+            { p with 
+                hand = p.hand |> Hand.add card
+                deck = Deck deck } 
+    static member hurt cards p2 = 
+        match p2.life |> Life.attack cards with
+        | Life point -> 
+            let p2 = { p2 with life = Life point }
+    //        displaySpeech p2.speak (sprintf "I have been hurted. Now I have %i life" (p2.life |> Life.value)) |> Async.RunSynchronously
+            displaySpeech p2.speak (sprintf "Je suis blessé. J'ai maintenant %i points de vie" (p2.life |> Life.value)) |> Async.RunSynchronously
+            p2
 
 type EndGame = 
     { winner: Player
@@ -120,14 +138,6 @@ type GameState =
     | Started of Game
     | End of EndGame
 
-let draw p = 
-    match p.deck |> Deck.draw with
-    | None -> { p with life = p.life |> Life.hurt }
-    | Some (card, deck) -> 
-        { p with 
-            hand = p.hand |> Hand.add card
-            deck = Deck deck } 
-
 let newPlayer name speaker strategy deck = 
     let player = 
         { name = name
@@ -136,8 +146,8 @@ let newPlayer name speaker strategy deck =
           hand = Hand.empty
           life = Life 30
           speak = speaker
-          strategy = strategy }
-    let readyPlayer = player |> draw |> draw |> draw
+          play = strategy }
+    let readyPlayer = player |> Player.draw |> Player.draw |> Player.draw
 
 //    readyPlayer.speaker (sprintf "Hello I'm %s and I will hurt you!!!!!" name) |> Async.RunSynchronously
     displaySpeech readyPlayer.speak (sprintf "Bonjour Je suis %s, Je vais te faire très mal!!!!!" name) |> Async.RunSynchronously
@@ -148,7 +158,7 @@ let random _ = rnd.Next()
 
 let newDeck random = 
     [ 0;0;1;1;2;2;2;3;3;3;3;4;4;4;5;5;6;6;7;8 ] 
-    |> List.map(fun i -> i |> Mana |> Card)
+    |> List.map(Mana >> Card)
     |> List.sortBy random
     |> Deck
 
@@ -176,35 +186,20 @@ let startGame arbiter tellName tellStrategy =
     let ((s1,p1),(s2,p2)) = chooseOrder arbiter (s1,p1) (s2,p2)
     
     let player1 = random |> newDeck |> newPlayer p1 (player1Voice |> asyncSpeak) s1
-    let player2 = random |> newDeck |> newPlayer p2 (player2Voice |> asyncSpeak) s2 |> draw
+    let player2 = random |> newDeck |> newPlayer p2 (player2Voice |> asyncSpeak) s2 |> Player.draw
     
     Started { turn= Players (player1, player2); pass=0 } 
-
-let hurt cards p2 = 
-    match p2.life |> Life.attack cards with
-    | Life point -> 
-        let p2 = { p2 with life = Life point }
-//        displaySpeech p2.speak (sprintf "I have been hurted. Now I have %i life" (p2.life |> Life.value)) |> Async.RunSynchronously
-        displaySpeech p2.speak (sprintf "Je suis blessé. J'ai maintenant %i points de vie" (p2.life |> Life.value)) |> Async.RunSynchronously
-        p2
-
-
-let addSlot p = 
-    let p = { p with slots = p.slots |> Slots.add }
-//    displaySpeech p.speak (sprintf "%s win 1 slot and has now %i slots" p1.name (p1.slots |> Slots.count)) |> Async.RunSynchronously
-    displaySpeech p.speak (sprintf "%s a gagné 1 slot et a maintenant %i slots" p.name (p.slots |> Slots.count)) |> Async.RunSynchronously
-    p
 
 let turn arbiter game = 
     let (p1,p2) = match game.turn with Players (p1,p2) -> (p1,p2)
 //    displaySpeech arbiter (sprintf "Turn %i, score %s with %i life, %s with %i life" game.pass p1.name (p1.life |> Life.value) p2.name (p2.life |> Life.value))
     displaySpeech arbiter (sprintf "Tour %i. Le score est: %s : %i, %s : %i" game.pass p1.name (p1.life |> Life.value) p2.name (p2.life |> Life.value)) |> Async.RunSynchronously
 
-    let p1 = p1 |> draw |> addSlot
+    let p1 = p1 |> Player.draw |> Player.addSlot
     
-    let (cards, p1) = p1 |> p1.strategy
+    let (cards, p1) = p1 |> p1.play
 
-    let p2 = p2 |> hurt cards
+    let p2 = p2 |> Player.hurt cards
 
     (p2,p1)
 
@@ -269,14 +264,15 @@ let human p =
                 p |> askOneCard
             | (true, mana) -> 
                 let card = mana |> Mana |> Card
+
                 match p.hand |> Hand.remove card with
-                | None, hand when hand |> List.isEmpty -> None, { p with hand=Hand hand }
+                | None, hand when hand |> Hand.isEmpty -> None, { p with hand=hand }
                 | None, _ -> 
 //                    displaySpeech p.speaker (sprintf "Bad card, given a valid point of mana.") |> Async.RunSynchronously
                     displaySpeech p.speak (sprintf "%s, mauvaise carte!" p.name) |> Async.RunSynchronously
                     askOneCard p
                 | Some card, hand -> 
-                    Some card, { p with hand=Hand hand }
+                    Some card, { p with hand=hand }
     
     let rec askCards remaining player cards =
         match remaining with
