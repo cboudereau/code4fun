@@ -13,29 +13,15 @@ arbiter.SelectVoice("Microsoft Hortense Desktop")
 
 let displaySpeech speaker text = 
     printfn "%s" text
-//    speaker text
-    async { 
-//        do! Async.Sleep 500
-        return () }
+    speaker text
+//    async { 
+////        do! Async.Sleep 500
+//        return () }
 
 let asyncSpeak (s:SpeechSynthesizer) text = 
-    let asyncCompleted (prompt:Prompt) = 
-        async {
-            let rec waitTrue (prompt:Prompt) = 
-                async {
-                    match prompt.IsCompleted with
-                    | true -> return ()
-                    | false -> 
-                        do! Async.Sleep 10
-                        return! waitTrue prompt
-                }
-            return! waitTrue prompt
-        }
-    
     async {
-        let prompt = s.SpeakAsync(text:string)
-        
-        return! prompt |> asyncCompleted
+        s.SpeakAsync(text:string) |> ignore
+        do! Async.AwaitEvent s.SpeakCompleted |> Async.Ignore 
     }
 
 type Mana = Mana of int
@@ -332,7 +318,7 @@ let nameForTest i =
 
 let modeForTest _ = kamikaze
 
-let game = startGame arbiterSpeak name mode
+let game = startGame arbiterSpeak nameForTest modeForTest
 
 let endGame = play arbiterSpeak game 
 
