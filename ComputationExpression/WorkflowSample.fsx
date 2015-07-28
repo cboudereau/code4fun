@@ -1,8 +1,8 @@
 ﻿type FailureState = 
-    | ParsingError of string
-    | Failed of bool
+    | CommunicationFailure of string
+    | ParsingFailure of bool
 
-type State<'a, 'b> = 
+type State<'a> = 
     | Success of 'a
     | Failure of FailureState
 
@@ -15,18 +15,22 @@ type StateBuilder()=
 
 let state = StateBuilder()
 
-let send request = 
+let send request response = 
     match request with
-    | "s" -> Success "s"
-    | v -> Failure (ParsingError "s")
+    | "s" -> Success response
+    | v -> Failure (CommunicationFailure v)
 
 let parse response =
     match response with
     | "s" -> Success true
-    | v -> Failure (Failed true)
+    | v -> Failure (ParsingFailure true)
 
-state {
-    let! r1 = send "s"
-    let! r2 = parse r1
-    return r2
-}
+let result = 
+    state {
+        let! r1 = send "s" "i"
+        let! r2 = parse r1
+        return r2
+    }
+match result with
+| Success v -> printfn "Success %b" v
+| other -> printfn "%A" other
