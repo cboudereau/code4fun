@@ -42,6 +42,37 @@ maybe{
     return b
 }
 
+type State<'a, 'b> = 
+    | Success of 'a
+    | Failure of 'b
+
+let divide bottom top = 
+    if bottom = 0
+    then Failure 0
+    else Success (top/bottom)
+
+type StateBuilder() = 
+    member __.Bind(x, f) = 
+        match x with
+        | Success a -> f a
+        | Failure n -> Failure n
+
+    member __.Return(x) = Success x
+
+let state = new StateBuilder();
+
+state{
+    let! a = 12 |> divide 0
+    let! b = a |> divide 3
+    return b
+}
+
+
+
+
+
+
+
 type OrElseBuilder() =
     member this.ReturnFrom(x) = x
     member this.Combine (a,b) = 

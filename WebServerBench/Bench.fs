@@ -66,10 +66,10 @@ let ``tpl client tpl server``()=
 let asyncCallAsParallel maxRequest = 
     let stopwatch = Stopwatch.StartNew()
 
-        [1 .. maxRequest |> decimal |> int]
-        |> List.map(asyncRequest)
-        |> Async.Parallel
-        |> Async.Ignore
+    [1 .. maxRequest |> decimal |> int]
+    |> List.map(asyncRequest)
+    |> Async.Parallel
+    |> Async.Ignore
     |> Async.RunSynchronously
     
     let result = (maxRequest / elapsed stopwatch) 

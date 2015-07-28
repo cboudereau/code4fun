@@ -133,18 +133,6 @@ type Players = Players of Player * Player
 type Game = 
     { turn: Players
       pass: int }
-    static member turn arbiter game = 
-        let (p1,p2) = match game.turn with Players (p1,p2) -> (p1,p2)
-    //    displaySpeech arbiter (sprintf "Turn %i, score %s with %i life, %s with %i life" game.pass p1.name (p1.life |> Life.value) p2.name (p2.life |> Life.value))
-        displaySpeech arbiter (sprintf "Tour %i. Le score est: %s : %i, %s : %i" game.pass p1.name (p1.life |> Life.value) p2.name (p2.life |> Life.value)) |> Async.RunSynchronously
-
-        let p1 = p1 |> Player.draw |> Player.addSlot
-        
-        let (cards, p1) = p1 |> p1.play
-
-        let p2 = p2 |> Player.hurt cards
-
-        (p2,p1)
 
 type GameState = 
     | Started of Game
@@ -207,11 +195,26 @@ let (|Dead|_|) life =
     | Life l when l <= 0 -> Some l
     | Life _ -> None
 
+
+let turn arbiter game = 
+    let (p1,p2) = match game.turn with Players (p1,p2) -> (p1,p2)
+//    displaySpeech arbiter (sprintf "Turn %i, score %s with %i life, %s with %i life" game.pass p1.name (p1.life |> Life.value) p2.name (p2.life |> Life.value))
+    displaySpeech arbiter (sprintf "Tour %i. Le score est: %s : %i, %s : %i" game.pass p1.name (p1.life |> Life.value) p2.name (p2.life |> Life.value)) |> Async.RunSynchronously
+
+    let p1 = p1 |> Player.draw |> Player.addSlot
+    
+    let (cards, p1) = p1 |> p1.play
+
+    let p2 = p2 |> Player.hurt cards
+
+    (p2,p1)
+
+
 let rec play arbiter game = 
     match game with
     | End p -> End p
     | Started game ->
-        let (p1, p2) = game |> Game.turn arbiter
+        let (p1, p2) = game |> turn arbiter
 
         match p1.life, p2.life with
         | Dead _, _  -> End { winner=p2; looser=p1; pass=game.pass }

@@ -19,9 +19,3 @@ type Event<'a> =
 type Moment<'a> = 
     | Start of DateTime
     | Moment of Event<'a>
-
-let (||)
-
-let add moment moments = 
-    match moment with
-    |
