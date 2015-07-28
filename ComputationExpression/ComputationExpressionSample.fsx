@@ -42,8 +42,6 @@ maybe{
     return b
 }
 
-type Temporary = {startDate:System.DateTime; endDate: System.DateTime}
-
 type OrElseBuilder() =
     member this.ReturnFrom(x) = x
     member this.Combine (a,b) = 

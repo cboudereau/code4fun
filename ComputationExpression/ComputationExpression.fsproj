@@ -63,6 +63,7 @@
     <None Include="packages.config" />
     <None Include="excel.xlsx" />
     <Content Include="personSample.xml" />
+    <None Include="Temporal.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Excel">
