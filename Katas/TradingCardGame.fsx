@@ -15,7 +15,7 @@ let displaySpeech speaker text =
     printfn "%s" text
 //    speaker text
     async { 
-        do! Async.Sleep 500
+//        do! Async.Sleep 500
         return () }
 
 let asyncSpeak (s:SpeechSynthesizer) text = 
@@ -317,6 +317,10 @@ let nameForTest i =
 let modeForTest _ = kamikaze
 
 let game = startGame arbiterSpeak nameForTest modeForTest
+
+[1 .. 100]
+|> List.map(fun _ -> play arbiterSpeak (startGame arbiterSpeak nameForTest modeForTest))
+|> List.map(fun endGame -> endGame)
 
 let endGame = play arbiterSpeak game 
 

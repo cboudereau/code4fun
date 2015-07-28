@@ -58,7 +58,9 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Compile Include="ComputationExpressionSample.fsx" />
+    <None Include="RailwayPoc.fsx" />
+    <None Include="WorkflowSample.fsx" />
+    <None Include="ComputationExpressionSample.fsx" />
     <None Include="ExcelProviderSamples.fsx" />
     <None Include="packages.config" />
     <None Include="excel.xlsx" />
