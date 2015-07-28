@@ -1,6 +1,10 @@
-﻿type State<'a, 'b> = 
+﻿type FailureState = 
+    | ParsingError of string
+    | Failed of bool
+
+type State<'a, 'b> = 
     | Success of 'a
-    | Failure of 'b
+    | Failure of FailureState
 
 type StateBuilder()=
     member __.Bind(x, f) = 
@@ -14,12 +18,12 @@ let state = StateBuilder()
 let send request = 
     match request with
     | "s" -> Success "s"
-    | v -> Failure v
+    | v -> Failure (ParsingError "s")
 
 let parse response =
     match response with
     | "s" -> Success true
-    | v -> Failure v
+    | v -> Failure (Failed true)
 
 state {
     let! r1 = send "s"
