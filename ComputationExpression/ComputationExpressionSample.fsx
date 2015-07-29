@@ -35,9 +35,9 @@ type MaybeBuilder() =
     member __.Return(x) = S x
 
 let maybe = new MaybeBuilder();
-
+let divideBy3 = divideBy 3
 maybe{
-    let! a = 12 |> divideBy 3
+    let! a = 12 |> divideBy3
     let! b = a |> divideBy 0
     return b
 }

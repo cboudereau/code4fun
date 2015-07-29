@@ -12,6 +12,7 @@ type StateBuilder()=
         | Success a -> f a
         | Failure b -> Failure b
     member __.Return(x) = Success x
+    member __.ReturnFrom(x) = x
 
 let state = StateBuilder()
 
@@ -27,10 +28,9 @@ let parse response =
 
 let result = 
     state {
-        let! r1 = send "s" "i"
-        let! r2 = parse r1
-        return r2
-    }
+        let! r1 = send "s" "s"
+        return! parse r1 }
+
 match result with
-| Success v -> printfn "Success %b" v
-| other -> printfn "%A" other
+| Success v -> printfn "Yeah! Success %b" v
+| other -> printfn "Ohhhh No! %A" other

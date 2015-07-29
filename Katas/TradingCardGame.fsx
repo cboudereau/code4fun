@@ -1,22 +1,24 @@
 ﻿#r "System.Speech"
-
+let rate = 2
 open System.Speech.Synthesis
 let player1Voice = new SpeechSynthesizer();
 player1Voice.GetInstalledVoices() |> Seq.map(fun v -> v.VoiceInfo.Name,v.VoiceInfo.Age, v.VoiceInfo.Culture.IetfLanguageTag, v.VoiceInfo.Gender)
 player1Voice.SelectVoice("Microsoft Hortense Desktop")
+player1Voice.Rate <- rate
 
 let player2Voice = new SpeechSynthesizer();
 player2Voice.SelectVoice("Microsoft Hortense Desktop")
+player2Voice.Rate <- rate
 
 let arbiter = new SpeechSynthesizer();
 arbiter.SelectVoice("Microsoft Hortense Desktop")
 
 let displaySpeech speaker text = 
     printfn "%s" text
-//    speaker text
-    async { 
-//        do! Async.Sleep 500
-        return () }
+    speaker text
+//    async { 
+////        do! Async.Sleep 500
+//        return () }
 
 let asyncSpeak (s:SpeechSynthesizer) text = 
     async {
@@ -318,9 +320,9 @@ let modeForTest _ = kamikaze
 
 let game = startGame arbiterSpeak nameForTest modeForTest
 
-[1 .. 100]
-|> List.map(fun _ -> play arbiterSpeak (startGame arbiterSpeak nameForTest modeForTest))
-|> List.map(fun endGame -> endGame)
+//[1 .. 100]
+//|> List.map(fun _ -> play arbiterSpeak (startGame arbiterSpeak nameForTest modeForTest))
+//|> List.map(fun endGame -> endGame)
 
 let endGame = play arbiterSpeak game 
 
