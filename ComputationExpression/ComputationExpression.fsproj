@@ -58,6 +58,7 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Compile Include="ListBuilderSample.fs" />
     <None Include="WorkflowSample.fsx" />
     <None Include="ComputationExpressionSample.fsx" />
     <None Include="ExcelProviderSamples.fsx" />
