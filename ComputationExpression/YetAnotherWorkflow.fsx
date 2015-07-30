@@ -50,11 +50,6 @@ let getMRequests flag request = [request] |> Seq.map (getOneRequest flag)
 
 let toAsync r = async { return r }
 
-let r3 = 
-    state {
-        let r31 = getOneRequest true (toAsync "Hello")
-    }
-
 let r2:seq<State<Async<string>>> = 
     state {
         for s in sendRequests true "Hello" do
