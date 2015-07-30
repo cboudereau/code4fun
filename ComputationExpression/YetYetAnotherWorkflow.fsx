@@ -10,24 +10,26 @@ let bind (f:'a -> Async<State<'b>>) (x:Async<State<'a>>) =
         | Failure -> return Failure
     }
 
+let result x = async { return Success x }
+
 type StateBuilder() = 
     member __.Bind(x,f) = bind f x
-    member __.Return(x) = async { return Success x }
+    member __.Return(x) = result x
     member __.ReturnFrom(x) = x
-    member __.Yield(x) = async { return Success x }
+    member __.Yield(x) = result x
     member __.YieldFrom(x) = x
     member __.For(x, f) = x |> Seq.map (bind f)
 
 let state = StateBuilder()
 
-let getRequest flag r =
+let OneToOne flag r =
     state {
         match flag with
         | true -> return r
         | _ -> return! async { return Failure }
     }
 
-let getRequests flag request = 
+let oneToMany flag request = 
     state {
         for r in [request] do
             yield!
@@ -36,6 +38,18 @@ let getRequests flag request =
                 | _ -> state { return! async { return Failure } }
     }
 
-let getMRequests flag requests = 
+let ManyToMany flag requests = 
     requests
-    |> Seq.collect(fun v -> getRequests flag v)
+    |> Seq.collect(fun v -> oneToMany flag v)
+
+type Async = 
+     static member toSeq computations = 
+        async {  
+            let! c' = computations
+            return c' |> Array.toSeq
+        }
+
+let ManyToOne requests = 
+    requests
+    |> Async.Parallel
+    |> Async.toSeq
