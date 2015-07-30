@@ -1,24 +1,10 @@
-﻿module ListBuilderSample
-
-type ListBuilder() =
+﻿type ListBuilder() =
     member this.Bind(m, f) = 
-        m |> List.collect f
-
-    member this.Zero() = 
-        printfn "Zero"
-        []
+        m |> List.map f
 
     member this.Return(x) = 
         printfn "Return an unwrapped %A as a list" x
         [x]
-
-    member this.Yield(x) = 
-        printfn "Yield an unwrapped %A as a list" x
-        [x]
-        
-    member this.For(m,f) =
-        printfn "For %A" m
-        this.Bind(m,f)
 
 // make an instance of the workflow                
 let listbuilder = new ListBuilder()

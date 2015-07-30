@@ -58,6 +58,7 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="YetYetAnotherWorkflow.fsx" />
     <Compile Include="ListBuilderSample.fs" />
     <None Include="WorkflowSample.fsx" />
     <None Include="ComputationExpressionSample.fsx" />
@@ -66,6 +67,7 @@
     <None Include="excel.xlsx" />
     <Content Include="personSample.xml" />
     <None Include="Temporal.fsx" />
+    <None Include="YetAnotherWorkflow.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Excel">
