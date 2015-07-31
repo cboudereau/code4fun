@@ -1,6 +1,12 @@
 ﻿type Async = 
-    static member toList computations = async { let! c = computations in return c |> Array.toList }
-    static member ParrallelList computations = computations |> Async.Parallel |> Async.toList
+    static member private toSeq computations = async { let! c = computations in return c |> Array.toSeq }
+    static member ParrallelSeq computations = computations |> Async.Parallel |> Async.toSeq
+    static member Collect computations = 
+        let self i = i
+        async {
+            let! l = computations |> Async.ParrallelSeq
+            return l |> Seq.collect self
+        }
 
 type StateFailure = 
     | ContractsMissed
@@ -28,7 +34,6 @@ type State<'a> =
     | Failure of StateFailure
     | States of Async<State<'a>> seq
 
-//let rec bind (f:'a -> Async<State<'b>>) (x:Async<State<'a>>) : Async<State<'b>> =
 module AsyncState =
     let rec bind f x =
         async{
@@ -41,21 +46,14 @@ module AsyncState =
 
     let result x = async { return Success x }
 
-    let run x = 
-        let rec fold responses x =
-            async {
-                let! x' = x
-                match x' with
-                | Success v -> return (v |> inventoryUpdateResponseSuccess) :: responses
-                | Failure f ->  return (f |> inventoryUpdateResponseFailure) :: responses
-                | States states ->
-                    return!
-                        async {
-                            let! statesFold = states |> Seq.map(fun i -> fold responses i) |> Async.ParrallelList
-                            return statesFold |> List.collect(fun i -> i)
-                        }
-            }
-        fold [] x
+    let rec fold x =
+        async {
+            let! x' = x
+            match x' with
+            | Success v -> return inventoryUpdateResponseSuccess v |> Seq.singleton
+            | Failure f -> return inventoryUpdateResponseFailure f |> Seq.singleton
+            | States s -> return! Seq.fold (fun acc i -> seq { yield i; yield! acc }) Seq.empty (s |> Seq.map (fold)) |> Async.Collect
+        }
 
 type StateBuilder() = 
     member __.Bind(x, f) = AsyncState.bind f x
@@ -154,4 +152,4 @@ let stateResponse =
                 yield! response |> parseResponse true
     }
 
-let r = AsyncState.run stateResponse |> Async.RunSynchronously
+AsyncState.fold stateResponse |> Async.RunSynchronously |> Seq.toList
