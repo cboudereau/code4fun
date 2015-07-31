@@ -2,34 +2,47 @@
     static member toSeq computations = async { let! c = computations in return c |> Array.toSeq }
     static member collect computations = async { let! c = computations in return c |> Seq.collect(fun i -> i) }
 
+type StateFailure = 
+    | ContractsMissed
+    | ContractNotFound
+    | ContractNotFoundOnPeriod
+    | PartnerCommunicationFailure
+    | ResponseParsingFailure
+
+type InventoryUpdateResponse = { success:bool; content:string }
+
+let inventoryUpdateResponseFailure stateFailure = 
+    let content = 
+        match stateFailure with
+        | ContractsMissed -> "ContractsMissed"
+        | ContractNotFound -> "ContractNotFound"
+        | ContractNotFoundOnPeriod -> "ContractNotFoundOnPeriod"
+        | PartnerCommunicationFailure -> "PartnerCommunicationFailure"
+        | ResponseParsingFailure -> "ResponseParsingFailure"
+    { success=false; content=content }
+
+let inventoryUpdateResponseSuccess content = { success=true; content=content }
 
 type State<'a> = 
     | Success of 'a
-    | Failure
-    | ContractNotFound
-    | ContractNotFoundOnPeriod
+    | Failure of StateFailure
+    | States of State<'a> seq
 
-let bind f x =
-    async {
-        let! x' = x
-        match x' with
-        | Success v -> return! f v
-        | Failure -> return Failure
-        | ContractNotFound -> return ContractNotFound
-        | ContractNotFoundOnPeriod -> return ContractNotFoundOnPeriod }
+let rec bind (f:'a -> State<'b>) (x:State<'a>) : State<'b> =
+    match x with
+    | Success v -> f v
+    | Failure f -> Failure f
+    | States states -> States (states |> Seq.map(bind f))
 
-let result x = async { return Success x }
+let result x = Success x
 
 type StateBuilder() = 
     member __.Bind(x, f) = bind f x
     member __.Return(x) = result x
     member __.ReturnFrom(x) = x
-    member __.For((l:seq<'a>), (m:'a -> Async<State<'b>>)) : seq<Async<State<'b>>> = l |> Seq.map(m)
+    member __.For(l,f) = States (l |> Seq.map (f))
     member __.Yield(x) = result x
     member __.YieldFrom(x) = x
-    member __.Zero() = 
-        printfn "Zero"
-        result []
 
 let state = StateBuilder()
 
@@ -46,48 +59,82 @@ let jan15 d = DateTime(2015,1,d)
 let (==>) dateFrom dateTo = { startDate = dateFrom; endDate = dateTo }
 let (:=) period value = { period = period; value = value }
 
-let getContracts = 
+type Contracts = Map<int, Temporal<string option>>
+let toContracts (t:Contracts) = t
+
+let getContracts flag = 
     state { 
-        return 
-            [ (1, [ jan15 1 ==> jan15 2 := Some "c11"; jan15 2 ==> jan15 10 := Some "c12" ] |> Temporal.toTemporal)
-              (2, [ jan15 1 ==> jan15 2 := Some "c21"; jan15 2 ==> jan15 5 := Some "c22"; jan15 5 ==> jan15 10 := None ] |> Temporal.toTemporal) ] |> Map.ofSeq
+        match flag with
+        | true ->
+            return 
+                [ (1, [ jan15 1 ==> jan15 2 := Some "c11"; jan15 2 ==> jan15 10 := Some "c12" ] |> Temporal.toTemporal)
+                  (2, [ jan15 1 ==> jan15 2 := Some "c21"; jan15 2 ==> jan15 5 := Some "c22"; jan15 5 ==> jan15 10 := None ] |> Temporal.toTemporal) ] |> Map.ofSeq |> toContracts
+        | _ -> return! Failure ContractsMissed
     }
 
 type Update = { name:string }
 
 let getUpdates = 
-    [ (1, [ jan15 1 ==> jan15 2 := { name = "u11" }; jan15 2 ==> jan15 10 := { name = "u12" } ] |> Temporal.toTemporal )
-      (2, [ jan15 1 ==> jan15 2 := { name = "u21" }; jan15 2 ==> jan15 5 := { name = "u22" }; jan15 5 ==> jan15 10 := { name = "u23" } ] |> Temporal.toTemporal )
-      (3, [ jan15 1 ==> jan15 2 := { name = "u21" } ] |> Temporal.toTemporal ) ] |> List.toSeq
-
-let getTemporal contracts (id,u) = 
-    match contracts |> Map.tryFind id with
-    | Some temporalContract -> 
-        //Here flatten with real function, here it is a poc without temporal implem
-        state { 
-            let c = (temporalContract |> Seq.head).value
-            match c with
-            | None -> return! async { return ContractNotFoundOnPeriod }
-            | Some c' -> return! async { return u |> Seq.map(fun t -> t.period := (c',t.value)) |> Temporal.toTemporal |> Success }
-        }
-    | None -> async { return ContractNotFound }
-
-let toRequest temporaryUpdate =
-    let s (dateTime:DateTime) = dateTime.ToString("yyyyMMdd")
-    let (contract, update) = temporaryUpdate.value
-    sprintf "%s ==> %s := contract=%s;update=%A" (s temporaryUpdate.period.startDate)  (s temporaryUpdate.period.endDate) contract update
-
-let r = 
     state{
-        for u in getUpdates do 
-            let! contracts = getContracts
-            let! temporals = getTemporal contracts u
-            yield temporals |> Seq.map toRequest |> Seq.toList
+        return
+            [ (1, [ jan15 1 ==> jan15 2 := { name = "u11" }; jan15 2 ==> jan15 10 := { name = "u12" } ] |> Temporal.toTemporal )
+              (2, [ jan15 1 ==> jan15 2 := { name = "u21" }; jan15 2 ==> jan15 5 := { name = "u22" }; jan15 5 ==> jan15 10 := { name = "u23" } ] |> Temporal.toTemporal )
+              (3, [ jan15 1 ==> jan15 2 := { name = "u21" } ] |> Temporal.toTemporal ) ]
     }
 
-let g = 
-    r
-    |> Async.Parallel
-    |> Async.toSeq
-    |> Async.RunSynchronously
-    |> Seq.toList
+let flatten (temporalContract, temporalUpdate) = 
+    let firstContract = (temporalContract |> Seq.head).value
+    temporalUpdate |> Seq.map(fun t -> t.period := (firstContract,t.value))
+
+let dateToString (date:DateTime) = date.ToString("yyyyMMdd")
+
+let matchContracts contracts (id,temporalUpdate) = 
+    state {
+        match contracts |> Map.tryFind id with
+        | None -> return! Failure ContractNotFound
+        | Some temporalContract -> return (temporalContract,temporalUpdate)
+    }
+
+let toRequest temporaryUpdateWithContract = 
+    state {
+        let (contract, update) = temporaryUpdateWithContract.value
+        match contract with
+        | Some c -> return sprintf "%s ==> %s := c(%s) u(%s)" (dateToString temporaryUpdateWithContract.period.startDate) (dateToString temporaryUpdateWithContract.period.endDate) c update.name
+        | None -> return! Failure ContractNotFoundOnPeriod
+    }
+
+let getHello s = state { return s }
+
+let send flag request = 
+    state {
+        if flag 
+        then return sprintf "sent ==> %s" request
+        else return! Failure PartnerCommunicationFailure
+    }
+
+let parseResponse flag response = 
+    state{
+        if flag
+        then return sprintf "parsed ==> %s" response
+        else return! Failure ResponseParsingFailure
+    }
+
+let response = 
+    state{
+            let! contracts = getContracts true
+            let! updates = getUpdates
+            for update in updates do
+                let! (temporalContract, temporalUpdate) = matchContracts contracts update
+                for temporaryUpdateWithContract in flatten(temporalContract, temporalUpdate) do
+                    let! request =  temporaryUpdateWithContract |> toRequest
+                    let! response = request |> send true
+                    yield! response |> parseResponse true
+    }
+
+let rec inventoryUpdateResponses response =
+    match response with
+    | Success v -> inventoryUpdateResponseSuccess v |> Seq.singleton
+    | Failure f -> inventoryUpdateResponseFailure f |> Seq.singleton
+    | States states -> states |> Seq.collect (fun s -> inventoryUpdateResponses s)
+
+inventoryUpdateResponses response |> Seq.toList
