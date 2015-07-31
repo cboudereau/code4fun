@@ -1,66 +1,6 @@
-﻿module Temporal =
-    type DateTime = System.DateTime
-    type HalfOpenPeriod = { startDate:DateTime; endDate:DateTime }
-    type Temporary<'a> = { period: HalfOpenPeriod; value:'a }
-
-    let jan15 d = DateTime(2015,1,d)
-
-    let (==>) dateFrom dateTo = { startDate = dateFrom; endDate = dateTo }
-    let (:=) period value = { period = period; value = value }
-
-module Async = 
-    let private toSeq computations = async { let! c = computations in return c |> Array.toSeq }
-    let parrallel computations = computations |> Async.Parallel |> toSeq
-    let collect computations = 
-        let self i = i
-        async {
-            let! l = computations |> parrallel
-            return l |> Seq.collect self
-        }
-
-module AsyncStateMonad =
-    type State<'a, 'b> = 
-        | Success of 'a
-        | Failure of 'b
-        | States of Async<State<'a, 'b>> seq
-
-    let rec bind f x =
-        async{
-            let! x' = x
-            match x' with
-            | Success v -> return! f v
-            | Failure f -> return Failure f
-            | States states -> return States (states |> Seq.map(bind f))
-        }
-
-    let result x = async { return Success x }
-
-    let foreach f l = async { return States (l |> Seq.map (f)) } 
-    
-    let fold fSuccess fFailure x =
-        let folder acc i = seq { yield i; yield! acc } 
-        let rec fold x = 
-            async {
-                let! x' = x
-                match x' with
-                | Success v -> return fSuccess v |> Seq.singleton
-                | Failure f -> return fFailure f |> Seq.singleton
-                | States s -> return! s |> Seq.map (fold) |> Seq.fold folder Seq.empty |> Async.collect
-            }
-
-        fold x
-    
-    let failure f = async { return Failure f }
-
-    type StateBuilder() = 
-        member __.Bind(x, f) = bind f x
-        member __.Return(x) = result x
-        member __.ReturnFrom(x) = x
-        member __.For(l,f) = foreach f l
-        member __.Yield(x) = result x
-        member __.YieldFrom(x) = x
-    
-    let state = StateBuilder()
+﻿#load "Async.fs"
+#load "AsyncStateMonad.fs"
+#load "Temporal.fs"
 
 // Use Monad in inventory update context
 open Temporal

@@ -58,6 +58,9 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Compile Include="Async.fs" />
+    <Compile Include="AsyncStateMonad.fs" />
+    <Compile Include="Temporal.fs" />
     <None Include="AsyncWorkflow.fsx" />
     <None Include="YetYetAnotherWorkflow.fsx" />
     <Compile Include="ListBuilderSample.fs" />
