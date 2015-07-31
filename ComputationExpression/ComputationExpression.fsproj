@@ -58,6 +58,7 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="AsyncWorkflow.fsx" />
     <None Include="YetYetAnotherWorkflow.fsx" />
     <Compile Include="ListBuilderSample.fs" />
     <None Include="WorkflowSample.fsx" />
