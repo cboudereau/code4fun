@@ -23,13 +23,14 @@
                 let a = acc.GetEnumerator()
                 while a.MoveNext() do yield a.Current
                 yield i  } 
+
         let rec fold x = 
             async {
                 let! x' = x
                 match x' with
                 | Success v -> return fSuccess v |> Seq.singleton
                 | Failure f -> return fFailure f |> Seq.singleton
-                | States s -> return! s |> Seq.map (fold) |> Seq.fold folder Seq.empty |> Async.collect
+                | States s -> return! s |> Seq.map (fold) |> Seq.fold folder Seq.empty |> Async.collectAsParallel
             }
 
         fold x

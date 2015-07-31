@@ -1,9 +1,11 @@
 ﻿module Async
     let private toSeq computations = async { let! c = computations in return c |> Array.toSeq }
-    let parrallel computations = computations |> Async.Parallel |> toSeq
-    let collect computations = 
+    let asParallel computations = computations |> Async.Parallel |> toSeq
+    let private collect run computations = 
         let self i = i
         async {
-            let! l = computations |> parrallel
+            let! l = computations |> run
             return l |> Seq.collect self
         }
+
+    let collectAsParallel computations = collect asParallel computations
