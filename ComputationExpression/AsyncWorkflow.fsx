@@ -8,7 +8,7 @@
             return l |> Seq.collect self
         }
 
-type StateFailure = 
+type UpdateStateFailure = 
     | ContractsMissed
     | ContractNotFound
     | ContractNotFoundOnPeriod
@@ -29,12 +29,12 @@ let inventoryUpdateResponseFailure stateFailure =
 
 let inventoryUpdateResponseSuccess content = { success=true; content=content }
 
-type State<'a> = 
+type State<'a, 'b> = 
     | Success of 'a
-    | Failure of StateFailure
-    | States of Async<State<'a>> seq
+    | Failure of 'b
+    | States of Async<State<'a, 'b>> seq
 
-module AsyncState =
+module AsyncStateMonad =
     let rec bind f x =
         async{
             let! x' = x
@@ -56,11 +56,11 @@ module AsyncState =
         }
 
 type StateBuilder() = 
-    member __.Bind(x, f) = AsyncState.bind f x
-    member __.Return(x) = AsyncState.result x
+    member __.Bind(x, f) = AsyncStateMonad.bind f x
+    member __.Return(x) = AsyncStateMonad.result x
     member __.ReturnFrom(x) = x
     member __.For(l,f) = async { return States (l |> Seq.map (f)) }
-    member __.Yield(x) = AsyncState.result x
+    member __.Yield(x) = AsyncStateMonad.result x
     member __.YieldFrom(x) = x
 
 let state = StateBuilder()
@@ -152,4 +152,4 @@ let stateResponse =
                 yield! response |> parseResponse true
     }
 
-AsyncState.fold stateResponse |> Async.RunSynchronously |> Seq.toList
+AsyncStateMonad.fold stateResponse |> Async.RunSynchronously |> Seq.toList
