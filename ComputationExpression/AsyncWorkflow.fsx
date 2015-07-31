@@ -26,12 +26,12 @@ type UpdateStateFailure =
 
 type InventoryUpdateResponse = { success:bool; content:string }
 
-type State<'a, 'b> = 
-    | Success of 'a
-    | Failure of 'b
-    | States of Async<State<'a, 'b>> seq
-
 module AsyncStateMonad =
+    type State<'a, 'b> = 
+        | Success of 'a
+        | Failure of 'b
+        | States of Async<State<'a, 'b>> seq
+
     let rec bind f x =
         async{
             let! x' = x
@@ -44,7 +44,7 @@ module AsyncStateMonad =
     let result x = async { return Success x }
 
     let for' f l = async { return States (l |> Seq.map (f)) } 
-
+    
     let fold fSuccess fFailure x =
         let rec fold x = 
             async {
@@ -57,13 +57,15 @@ module AsyncStateMonad =
 
         fold x
 
-type StateBuilder() = 
-    member __.Bind(x, f) = AsyncStateMonad.bind f x
-    member __.Return(x) = AsyncStateMonad.result x
-    member __.ReturnFrom(x) = x
-    member __.For(l,f) = AsyncStateMonad.for' f l
-    member __.Yield(x) = AsyncStateMonad.result x
-    member __.YieldFrom(x) = x
+    type StateBuilder() = 
+        member __.Bind(x, f) = bind f x
+        member __.Return(x) = result x
+        member __.ReturnFrom(x) = x
+        member __.For(l,f) = for' f l
+        member __.Yield(x) = result x
+        member __.YieldFrom(x) = x
+
+open AsyncStateMonad
 
 let state = StateBuilder()
 
@@ -150,4 +152,7 @@ let toFailedResponse stateFailure =
 
 let toSuccessResponse content = { success=true; content=content }
 
-AsyncStateMonad.fold toSuccessResponse toFailedResponse stateResponse |> Async.RunSynchronously |> Seq.toList
+stateResponse
+|> AsyncStateMonad.fold toSuccessResponse toFailedResponse
+|> Async.RunSynchronously 
+|> Seq.toList
