@@ -1,4 +1,13 @@
-﻿type Async = 
+﻿type DateTime = System.DateTime
+type HalfOpenPeriod = { startDate:DateTime; endDate:DateTime }
+type Temporary<'a> = { period: HalfOpenPeriod; value:'a }
+
+let jan15 d = DateTime(2015,1,d)
+
+let (==>) dateFrom dateTo = { startDate = dateFrom; endDate = dateTo }
+let (:=) period value = { period = period; value = value }
+
+type Async = 
     static member private toSeq computations = async { let! c = computations in return c |> Array.toSeq }
     static member ParrallelSeq computations = computations |> Async.Parallel |> Async.toSeq
     static member Collect computations = 
@@ -17,18 +26,6 @@ type UpdateStateFailure =
 
 type InventoryUpdateResponse = { success:bool; content:string }
 
-let inventoryUpdateResponseFailure stateFailure = 
-    let content stateFailure = 
-        match stateFailure with
-        | ContractsMissed -> "ContractsMissed"
-        | ContractNotFound -> "ContractNotFound"
-        | ContractNotFoundOnPeriod -> "ContractNotFoundOnPeriod"
-        | PartnerCommunicationFailure -> "PartnerCommunicationFailure"
-        | ResponseParsingFailure -> "ResponseParsingFailure"
-    { success=false; content= content stateFailure }
-
-let inventoryUpdateResponseSuccess content = { success=true; content=content }
-
 type State<'a, 'b> = 
     | Success of 'a
     | Failure of 'b
@@ -46,40 +43,29 @@ module AsyncStateMonad =
 
     let result x = async { return Success x }
 
-    let rec fold x =
-        async {
-            let! x' = x
-            match x' with
-            | Success v -> return inventoryUpdateResponseSuccess v |> Seq.singleton
-            | Failure f -> return inventoryUpdateResponseFailure f |> Seq.singleton
-            | States s -> return! Seq.fold (fun acc i -> seq { yield i; yield! acc }) Seq.empty (s |> Seq.map (fold)) |> Async.Collect
-        }
+    let for' f l = async { return States (l |> Seq.map (f)) } 
+
+    let fold fSuccess fFailure x =
+        let rec fold x = 
+            async {
+                let! x' = x
+                match x' with
+                | Success v -> return fSuccess v |> Seq.singleton
+                | Failure f -> return fFailure f |> Seq.singleton
+                | States s -> return! Seq.fold (fun acc i -> seq { yield i; yield! acc }) Seq.empty (s |> Seq.map (fold)) |> Async.Collect
+            }
+
+        fold x
 
 type StateBuilder() = 
     member __.Bind(x, f) = AsyncStateMonad.bind f x
     member __.Return(x) = AsyncStateMonad.result x
     member __.ReturnFrom(x) = x
-    member __.For(l,f) = async { return States (l |> Seq.map (f)) }
+    member __.For(l,f) = AsyncStateMonad.for' f l
     member __.Yield(x) = AsyncStateMonad.result x
     member __.YieldFrom(x) = x
 
 let state = StateBuilder()
-
-type DateTime = System.DateTime
-type HalfOpenPeriod = { startDate:DateTime; endDate:DateTime }
-type Temporary<'a> = { period: HalfOpenPeriod; value:'a }
-type Temporal<'a> = Temporary<'a> seq
-
-module Temporal = 
-    let toTemporal t : Temporal<'a> = t
-
-let jan15 d = DateTime(2015,1,d)
-
-let (==>) dateFrom dateTo = { startDate = dateFrom; endDate = dateTo }
-let (:=) period value = { period = period; value = value }
-
-type Contracts = Map<int, Temporal<string option>>
-let toContracts (t:Contracts) = t
 
 let failure f = async { return Failure f }
 
@@ -90,8 +76,8 @@ let getContracts flag =
         match flag with
         | true ->
             return 
-                [ (1, [ jan15 1 ==> jan15 2 := Some "c11"; jan15 2 ==> jan15 10 := Some "c12" ] |> Temporal.toTemporal)
-                  (2, [ jan15 1 ==> jan15 2 := Some "c21"; jan15 2 ==> jan15 5 := Some "c22"; jan15 5 ==> jan15 10 := None ] |> Temporal.toTemporal) ] |> Map.ofSeq |> toContracts
+                [ (1, [ jan15 1 ==> jan15 2 := Some "c11"; jan15 2 ==> jan15 10 := Some "c12" ])
+                  (2, [ jan15 1 ==> jan15 2 := Some "c21"; jan15 2 ==> jan15 5 := Some "c22"; jan15 5 ==> jan15 10 := None ]) ] |> Map.ofSeq
         | _ -> return! failure ContractsMissed
     }
 
@@ -100,9 +86,9 @@ type Update = { name:string }
 let getUpdates = 
     state{
         return
-            [ (1, [ jan15 1 ==> jan15 2 := { name = "u11" }; jan15 2 ==> jan15 10 := { name = "u12" } ] |> Temporal.toTemporal )
-              (2, [ jan15 1 ==> jan15 2 := { name = "u21" }; jan15 2 ==> jan15 5 := { name = "u22" }; jan15 5 ==> jan15 10 := { name = "u23" } ] |> Temporal.toTemporal )
-              (3, [ jan15 1 ==> jan15 2 := { name = "u21" } ] |> Temporal.toTemporal ) ]
+            [ (1, [ jan15 1 ==> jan15 2 := { name = "u11" }; jan15 2 ==> jan15 10 := { name = "u12" } ] )
+              (2, [ jan15 1 ==> jan15 2 := { name = "u21" }; jan15 2 ==> jan15 5 := { name = "u22" }; jan15 5 ==> jan15 10 := { name = "u23" } ] )
+              (3, [ jan15 1 ==> jan15 2 := { name = "u21" } ] ) ]
     }
 
 let flatten (temporalContract, temporalUpdate) = 
@@ -152,4 +138,16 @@ let stateResponse =
                 yield! response |> parseResponse true
     }
 
-AsyncStateMonad.fold stateResponse |> Async.RunSynchronously |> Seq.toList
+let toFailedResponse stateFailure = 
+    let content stateFailure = 
+        match stateFailure with
+        | ContractsMissed -> "ContractsMissed"
+        | ContractNotFound -> "ContractNotFound"
+        | ContractNotFoundOnPeriod -> "ContractNotFoundOnPeriod"
+        | PartnerCommunicationFailure -> "PartnerCommunicationFailure"
+        | ResponseParsingFailure -> "ResponseParsingFailure"
+    { success=false; content= content stateFailure }
+
+let toSuccessResponse content = { success=true; content=content }
+
+AsyncStateMonad.fold toSuccessResponse toFailedResponse stateResponse |> Async.RunSynchronously |> Seq.toList
