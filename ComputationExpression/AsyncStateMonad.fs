@@ -15,7 +15,7 @@
 
     let result x = async { return Success x }
 
-    let foreach f l = async { return States (l |> Seq.map (f)) } 
+    let map f l = async { return States (l |> Seq.map (f)) } 
     
     let fold fSuccess fFailure x =
         let folder (acc:#seq<_>) i = 
@@ -38,10 +38,10 @@
     let failure f = async { return Failure f }
 
     type StateBuilder() = 
-        member __.Bind(x, f) = bind f x
+        member __.Bind(x, f) = x |> bind f
         member __.Return(x) = result x
         member __.ReturnFrom(x) = x
-        member __.For(l,f) = foreach f l
+        member __.For(l,f) = l |> map f
         member __.Yield(x) = result x
         member __.YieldFrom(x) = x
     

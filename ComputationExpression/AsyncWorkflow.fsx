@@ -56,18 +56,21 @@ let toRequest temporaryUpdateWithContract =
         | None -> return! failure ContractNotFoundOnPeriod
     }
 
-let send flag request = 
+module String = 
+    let contains search (s:string) = s.Contains(search)
+
+let send error request  = 
     state {
-        if flag 
-        then return sprintf "sent ==> %s" request
-        else return! failure PartnerCommunicationFailure
+        if request |> String.contains error
+        then return! failure PartnerCommunicationFailure
+        else return sprintf "sent ==> %s" request 
     }
 
-let parseResponse flag response = 
+let parseResponse error response = 
     state{
-        if flag
-        then return sprintf "parsed ==> %s" response
-        else return! failure ResponseParsingFailure
+        if response |> String.contains error
+        then return! failure ResponseParsingFailure
+        else return sprintf "parsed ==> %s" response 
     }
 
 let updateWorflow = 
@@ -78,8 +81,8 @@ let updateWorflow =
             let! (temporalContract, temporalUpdate) = matchContract contracts update
             for temporaryUpdateWithContract in flatten(temporalContract, temporalUpdate) do
                 let! request =  temporaryUpdateWithContract |> toRequest
-                let! response = request |> send true
-                yield! response |> parseResponse true
+                let! response = request |> send "u11"
+                yield! response |> parseResponse "u22"
     }
 
 let toFailedResponse stateFailure = 
