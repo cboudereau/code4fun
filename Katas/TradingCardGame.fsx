@@ -318,7 +318,7 @@ let nameForTest i =
 
 let modeForTest _ = kamikaze
 
-let game = startGame arbiterSpeak name mode
+let game = startGame arbiterSpeak nameForTest modeForTest
 
 //[1 .. 100]
 //|> List.map(fun _ -> play arbiterSpeak (startGame arbiterSpeak nameForTest modeForTest))

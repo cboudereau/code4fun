@@ -1,5 +1,4 @@
-﻿Powershell type provider
-PowerShell
+﻿PowerShell
 Proxy for fun
 Embrace
 My own compiler
@@ -7,6 +6,8 @@ Elixir
 
 TODO : https://github.com/c4fsharp/Dojo-Markov-Bot/tree/master/dojo
 
+Done Powershell type provider
+Done Monads
 Done Computation Expression
 Done Kata Trading Card Game
 Done ServicePointManager
