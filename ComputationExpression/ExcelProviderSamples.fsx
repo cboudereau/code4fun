@@ -21,7 +21,14 @@ let priceRow = priceFile.Data |> Seq.head
 
 open FSharp.Data
 
-type PersonXml = XmlProvider<"<root><firstName>Clem</firstName><name>boud</name></root>">
+[<Literal>]
+let xmlSample = "<root><firstName>Clem</firstName><name>boud</name></root>"
+
+type PersonXml = XmlProvider<xmlSample>
+
+let personFromSample = PersonXml.Parse(xmlSample)
+
+personFromSample.FirstName
 
 let xml = PersonXml.Root("Sergii", "Salata").XElement.ToString()
 
