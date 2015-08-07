@@ -1,5 +1,5 @@
 ﻿module Async
-    let private toSeq computations = async { let! c = computations in return c |> Array.toSeq }
+    let toSeq computations = async { let! c = computations in return c |> Array.toSeq }
     let asParallel computations = computations |> Async.Parallel |> toSeq
     let private collect run computations = 
         let self i = i

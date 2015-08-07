@@ -1,5 +1,4 @@
-﻿
-#r @"..\packages\ExcelProvider.0.1.2\lib\net40\ExcelProvider.dll"
+﻿#r @"..\packages\ExcelProvider.0.1.2\lib\net40\ExcelProvider.dll"
 
 open FSharp.ExcelProvider
 

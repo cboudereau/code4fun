@@ -62,7 +62,7 @@
     <Compile Include="AsyncStateMonad.fs" />
     <Compile Include="Temporal.fs" />
     <None Include="AsyncWorkflow.fsx" />
-    <None Include="YetYetAnotherWorkflow.fsx" />
+    <None Include="SimplifiedAsyncStateWorkflow.fsx" />
     <Compile Include="ListBuilderSample.fs" />
     <None Include="WorkflowSample.fsx" />
     <None Include="ComputationExpressionSample.fsx" />
