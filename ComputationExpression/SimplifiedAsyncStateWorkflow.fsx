@@ -22,7 +22,6 @@
     
     let state = StateBuilder()
 
-
 module Workflow = 
 
     open AsyncStateMonad
@@ -41,11 +40,10 @@ module Workflow =
 
 
 module WorkflowSeq = 
-    open AsyncStateMonad
     open Workflow
 
-    let getRequests requests = requests |> Seq.map(fun r -> getRequest r)
+    let getRequests requests = requests |> Seq.map getRequest
 
-    let validateAll requests = requests |> Seq.map(validate)
+    let validateAll requests = requests |> Seq.map validate
 
     let runAll = ["done"; "d";"done"] |> getRequests |> validateAll |> Async.Parallel |> Async.RunSynchronously
