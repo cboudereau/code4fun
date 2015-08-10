@@ -58,11 +58,12 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Compile Include="SimplifiedAsyncStateWorkflow.fsx" />
+    <Compile Include="ComputationSample.fs" />
     <Compile Include="Async.fs" />
     <Compile Include="AsyncStateMonad.fs" />
     <Compile Include="Temporal.fs" />
     <None Include="AsyncWorkflow.fsx" />
-    <None Include="SimplifiedAsyncStateWorkflow.fsx" />
     <Compile Include="ListBuilderSample.fs" />
     <None Include="WorkflowSample.fsx" />
     <None Include="ComputationExpressionSample.fsx" />
@@ -71,7 +72,6 @@
     <None Include="excel.xlsx" />
     <Content Include="personSample.xml" />
     <None Include="Temporal.fsx" />
-    <None Include="YetAnotherWorkflow.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Excel">

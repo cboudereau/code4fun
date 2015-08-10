@@ -19,6 +19,11 @@
         member __.Bind(x, f) = x |> bind f
         member __.Return(x) = result x
         member __.ReturnFrom(x) = x
+        member __.TryWith(x, f) = 
+            try
+                x |> bind f
+            with ex -> failure ex
+        member __.Delay(f) = f()
     
     let state = StateBuilder()
 
@@ -41,9 +46,39 @@ module Workflow =
 
 module WorkflowSeq = 
     open Workflow
+    open AsyncStateMonad
+
+//    let contract c = state { return c }
+//
+//    let getRequests c requests = 
+//        state{
+//            let! c' = c
+//            match c' with
+//            | "done" ->  requests |> Seq.map getRequest
+//            | _ -> return! failure "failed"
+//        }
 
     let getRequests requests = requests |> Seq.map getRequest
 
     let validateAll requests = requests |> Seq.map validate
 
     let runAll = ["done"; "d";"done"] |> getRequests |> validateAll |> Async.Parallel |> Async.RunSynchronously
+
+module WorkflowThrowException = 
+    
+    open AsyncStateMonad
+    open Workflow
+
+    let request r  = state { return r }
+
+    let fail request = 
+        state {
+            let! r = request
+            if r = "done" then return true
+            else 
+                try
+                    return failwith "Boom!"
+                with ex -> return! failure ex
+        }
+
+    "hello" |> request |> fail |> Async.RunSynchronously
