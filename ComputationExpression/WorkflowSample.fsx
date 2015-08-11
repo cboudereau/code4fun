@@ -18,6 +18,12 @@ type StateBuilder() =
     member __.ReturnFrom(x) = x
     member __.Yield(x) = async { return Success x }
     member __.YieldFrom(x) = x
+    member __.Combine(x1,x2) = 
+        seq {
+            yield x1
+            yield! x2
+        }
+    member __.Delay(f) = f()
     member __.For(x, f) = x |> Seq.map f
 
 let state = StateBuilder()
@@ -83,6 +89,24 @@ let parseSingle flag r =
             return r
         }
     | _ -> state { return! failure() }
+   
+let rec recParseSends flag responses = 
+    state {
+        match responses with
+        | "hello" :: tail -> 
+            yield "hello"
+            yield! recParseSends flag tail
+        | _ -> yield! (failure() |> Seq.singleton)
+    }
+
+let parseSends flag responses = 
+    match flag with
+    | 1 -> 
+        state {
+            let! responses' = responses
+            return recParseSends flag (responses' |> Seq.toList)
+        }
+    | _ -> state { yield! failure() }
 
 let parseWithState flag responses = 
     
@@ -95,9 +119,13 @@ let parseWithState flag responses =
 let r5 = 
     let getContract () = result (["hello"; "bad"] |> List.toSeq)
     let r51 = 
-        let sends = sendWithContract true (getContract()) 
-        let parses = sends |> (parseWithState 1)
-        parses
+        state {
+            let sends = sendWithContract true (getContract()) 
+            return! sends |> parseSends 1
+        }
     r51
 
-r5 |> Async.asParallel |> Async.RunSynchronously |> Seq.toList
+let result5 = r5 |> Async.RunSynchronously
+match result5 with
+| Success x -> x |> Async.asParallel |> Async.RunSynchronously |> Seq.toList
+| Failure -> []
