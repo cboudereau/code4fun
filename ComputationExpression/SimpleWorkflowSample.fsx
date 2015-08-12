@@ -33,6 +33,4 @@ let parse flag value =
 
 let parses flag value = parse flag value |> Seq.singleton
 
-let r0 = state { let v = mayBeOne 1 in for p in parses true v do return! p }
-
-r0 |> Seq.toList |> printfn "%A"
+state { let v = mayBeOne 1 in for p in parses true v do return! p } |> Seq.toList |> printfn "%A"
