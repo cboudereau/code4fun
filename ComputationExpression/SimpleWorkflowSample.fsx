@@ -7,7 +7,7 @@ type StateBuilder() =
     member __.Bind(x, f) = 
         match x with
         | Success v -> f v
-        | Failure f -> f
+        | Failure f -> Failure f
     member __.Return(x) = Success x
     member __.ReturnFrom(x) = x
 
@@ -27,8 +27,8 @@ let parse flag value =
 
 let test = 
     state {
-        let v = mayBeOne 1
-        let p = parse true 1
+        let! v = mayBeOne 1
+        let p = parse true v
         return! p
     }
     
