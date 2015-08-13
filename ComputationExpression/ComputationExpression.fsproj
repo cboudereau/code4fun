@@ -58,8 +58,8 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ActorModel.fsx" />
     <Compile Include="SimplifiedAsyncStateWorkflow.fsx" />
-    <Compile Include="ComputationSample.fs" />
     <Compile Include="Async.fs" />
     <Compile Include="AsyncStateMonad.fs" />
     <Compile Include="Temporal.fs" />
@@ -67,6 +67,7 @@
     <Compile Include="ListBuilderSample.fs" />
     <None Include="WorkflowSample.fsx" />
     <None Include="SimpleWorkflowSample.fsx" />
+    <None Include="AsyncSeqStateWorkflow.fsx" />
     <None Include="WorkflowWithException.fsx" />
     <None Include="ComputationExpressionSample.fsx" />
     <None Include="ExcelProviderSamples.fsx" />
