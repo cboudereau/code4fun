@@ -1,96 +1,117 @@
 ﻿open System
 open Microsoft.FSharp.Control
 
-type Agent<'a> = MailboxProcessor<'a>
+module ActorModel = 
 
-type Message = { number:int; hotelId:string; body:string }
+    type Agent<'a> = MailboxProcessor<'a>
 
-let nm number hotelId body = { number = number; hotelId = hotelId; body = body }
+    type SequenceMessage<'a> = 
+        { sequenceId : string
+          id : int
+          message : 'a }
 
-let messages = 
-    [ nm 1 "H1" "Message1"
-      nm 2 "H1" "Message2"
-      nm 3 "H2" "Message1"
-      nm 4 "H2" "Message2"
-      nm 5 "H2" "Message3"
-      nm 6 "H2" "Message4"
-      nm 7 "H2" "Message5"
-      nm 8 "H2" "Message6"
-      nm 9 "H1" "Message3" ]
+    type StateFullActorMessage<'a> = 
+        | Take of 'a
+        | Leave of 'a
 
-let rand = Random()
-let next () = rand.Next()
+    let workerFactory job suicideSignal id = 
+        Agent.Start <| fun inbox -> 
+            let rec listen() = 
+                async {
+                    try
+                        let! receive = inbox.Receive(1000)
+                        do! receive job
+                        do! listen()
+                    with
+                    | :? TimeoutException as ex -> 
+                        printfn "%A should Dead" id
+                        let! candidate = suicideSignal id
+                        candidate |> ignore
+                }
+            printfn "%A worker birth" id
+            listen()
 
-type StateFullActorMessage<'a> = 
-    | Take of 'a
-    | Leave of 'a
-
-let workerFactory job suicideSignal id = 
-    Agent.Start <| fun inbox -> 
-        let rec listen() = 
-            async {
-                try
-                    let! receive = inbox.Receive(1000)
-                    do! receive job
-                    do! listen()
-                with
-                | :? TimeoutException as ex -> 
-                    printfn "%A should Dead" id
-                    let! candidate = suicideSignal id
-                    candidate |> ignore
-            }
-        printfn "%A worker birth" id
-        listen()
-
-let displayMessage message = printfn "%A" message
-
-let actorPool factory limit = 
-    Agent.Start <| fun inbox -> 
-        let rec listen actors = 
-            async {
-                let suicideSignal id = inbox.PostAndAsyncReply <| fun channel -> (channel.Reply, Leave id)
-                let! (replyChannel, stateFullMessage) = inbox.Receive()
-                match stateFullMessage with
-                | Take key -> 
-                    match actors |> Map.tryFind key with
-                    | Some actor -> 
-                        actor |> Some |> replyChannel
-                        do! actors |> listen
-                    | None ->
-                        if actors |> Map.toSeq |> Seq.length > limit 
-                        then 
-                            do! Async.Sleep 100
-                            None |> replyChannel 
+    let actorPool factory limit = 
+        Agent.Start <| fun inbox -> 
+            let rec listen actors = 
+                async {
+                    let suicideSignal id = inbox.PostAndAsyncReply <| fun channel -> (channel.Reply, Leave id)
+                    let! (replyChannel, stateFullMessage) = inbox.Receive()
+                    match stateFullMessage with
+                    | Take key -> 
+                        match actors |> Map.tryFind key with
+                        | Some actor -> 
+                            actor |> Some |> replyChannel
                             do! actors |> listen
-                        else
-                            let newActor = factory suicideSignal key
-                            newActor |> Some |> replyChannel
-                            do! actors |> Map.add key newActor |> listen
-                | Leave key -> 
-                    let candidate = actors |> Map.find key
-                    candidate |> Some |> replyChannel 
-                    printfn "%A Left" key
-                    do! actors |> Map.remove key |> listen
-            }
-        listen Map.empty
+                        | None ->
+                            if actors |> Map.toSeq |> Seq.length > limit 
+                            then 
+                                do! Async.Sleep 100
+                                None |> replyChannel 
+                                do! actors |> listen
+                            else
+                                let newActor = factory suicideSignal key
+                                newActor |> Some |> replyChannel
+                                do! actors |> Map.add key newActor |> listen
+                    | Leave key -> 
+                        let candidate = actors |> Map.find key
+                        candidate |> Some |> replyChannel 
+                        printfn "%A Left" key
+                        do! actors |> Map.remove key |> listen
+                }
+            listen Map.empty
 
-let workerPool = actorPool (workerFactory displayMessage) 3
+    let workerPool workerCount job = actorPool (workerFactory job) workerCount
 
-let fromWorkerPool id = workerPool.PostAndAsyncReply <| fun channel -> (channel.Reply, id)
-
-let receive message job = async { return job message }
-
-let rec peek queue = 
-    async {
-        match queue with
-        | h :: t ->
-            let! maybeActor = Take h.hotelId |> fromWorkerPool
-            match maybeActor with
-            | Some actor -> 
-                actor.Post (receive h)
-                do! peek t
-            | None -> do! peek queue
-        | [] -> printfn "finished"
-    }
+    let consume workerCount job queue = 
         
-peek messages |> Async.RunSynchronously
+        //Here is to have to worker count limit on worker pool
+        let limitedWorkerPool = workerPool workerCount job
+        let fromWorkerPool id = limitedWorkerPool.PostAndAsyncReply <| fun channel -> (channel.Reply, id)
+        
+        //Here replace with azure receive, idea is atomitically receive process and commit message asynchronously
+        let receive message job = async { return job message }
+
+        let rec peek queue = 
+            async {
+                match queue with
+                | h :: t ->
+                    let! maybeActor = Take h.sequenceId |> fromWorkerPool
+                    match maybeActor with
+                    | Some actor -> 
+                        actor.Post (receive h)
+                        do! peek t
+                    | None -> do! peek queue
+                | [] -> 
+                    //Here renew session to get new messages
+                    printfn "finished"
+            }
+        peek queue
+        
+module Availpro = 
+    open ActorModel
+    
+    type Message = { number:int; hotelId:string; body:string }
+
+    let m number hotelId body = 
+        let message = { number = number; hotelId = hotelId; body = body }
+        { id = number
+          sequenceId = hotelId
+          message = message }
+
+    let messages = 
+        [ m 1 "H1" "Message1"
+          m 2 "H1" "Message2"
+          m 3 "H2" "Message1"
+          m 4 "H2" "Message2"
+          m 5 "H2" "Message3"
+          m 6 "H2" "Message4"
+          m 7 "H2" "Message5"
+          m 8 "H2" "Message6"
+          m 9 "H1" "Message3" ]
+    
+    let displayMessage message = printfn "%A" message
+    
+    let run () = messages |> consume 3 displayMessage |> Async.RunSynchronously
+
+Availpro.run()
