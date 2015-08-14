@@ -44,7 +44,7 @@ let workerFactory job suicideSignal id =
 
 let displayMessage message = printfn "%A" message
 
-let actorPool factory = 
+let actorPool factory limit = 
     Agent.Start <| fun inbox -> 
         let rec listen actors = 
             async {
@@ -54,21 +54,27 @@ let actorPool factory =
                 | Take key -> 
                     match actors |> Map.tryFind key with
                     | Some actor -> 
-                        replyChannel actor
-                        do! actors |> listen 
+                        actor |> Some |> replyChannel
+                        do! actors |> listen
                     | None ->
-                        let newActor = factory suicideSignal key
-                        replyChannel newActor
-                        do! actors |> Map.add key newActor |> listen
+                        if actors |> Map.toSeq |> Seq.length > limit 
+                        then 
+                            do! Async.Sleep 100
+                            None |> replyChannel 
+                            do! actors |> listen
+                        else
+                            let newActor = factory suicideSignal key
+                            newActor |> Some |> replyChannel
+                            do! actors |> Map.add key newActor |> listen
                 | Leave key -> 
                     let candidate = actors |> Map.find key
-                    replyChannel candidate
+                    candidate |> Some |> replyChannel 
                     printfn "%A Left" key
                     do! actors |> Map.remove key |> listen
             }
         listen Map.empty
 
-let workerPool = actorPool (workerFactory displayMessage)
+let workerPool = actorPool (workerFactory displayMessage) 2
 
 let fromWorkerPool id = workerPool.PostAndAsyncReply <| fun channel -> (channel.Reply, id)
 
@@ -78,9 +84,12 @@ let rec peek queue =
     async {
         match queue with
         | h :: t ->
-            let! actor = Take h.hotelId |>fromWorkerPool
-            actor.Post (receive h)
-            do! peek t
+            let! maybeActor = Take h.hotelId |> fromWorkerPool
+            match maybeActor with
+            | Some actor -> 
+                actor.Post (receive h)
+                do! peek t
+            | None -> do! peek queue
         | [] -> printfn "finished"
     }
         
