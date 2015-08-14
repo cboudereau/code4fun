@@ -1,8 +1,7 @@
 ﻿module Main
 
 open ActorModel
-
-type Message = { number:int; hotelId:string; body:string }
+open Availpro
 
 let m number hotelId body = 
     let message = { number = number; hotelId = hotelId; body = body }
@@ -25,7 +24,7 @@ let displayMessage message = printfn "%A" message
 
 let run () = 
     messages 
-    |> consume 3 displayMessage 
+    |> ActorModel.consume 3 displayMessage 
     |> Async.RunSynchronously
 
 [<EntryPoint>]
