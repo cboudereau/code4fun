@@ -1,7 +1,7 @@
 ﻿open System
 open Microsoft.FSharp.Control
 
-type Actor<'a> = MailboxProcessor<'a>
+type Agent<'a> = MailboxProcessor<'a>
 
 type Message = { number:int; hotelId:string; body:string }
 
@@ -26,7 +26,7 @@ type StateFullActorMessage<'a> =
     | Leave of 'a
 
 let workerFactory job suicideSignal id = 
-    Actor.Start <| fun inbox -> 
+    Agent.Start <| fun inbox -> 
         let rec listen() = 
             async {
                 try
@@ -45,7 +45,7 @@ let workerFactory job suicideSignal id =
 let displayMessage message = printfn "%A" message
 
 let actorPool factory = 
-    Actor.Start <| fun inbox -> 
+    Agent.Start <| fun inbox -> 
         let rec listen actors = 
             async {
                 let suicideSignal id = inbox.PostAndAsyncReply <| fun channel -> (channel.Reply, Leave id)
