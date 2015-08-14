@@ -1,5 +1,5 @@
 ﻿module Availpro
 
-type Message = { number:int; hotelId:string; body:string }
+type Message = { number:int; hotelId:int; body:string }
 
 

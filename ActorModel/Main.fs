@@ -10,15 +10,15 @@ let m number hotelId body =
       message = message }
 
 let messages = 
-    [ m 1 "H1" "Message1"
-      m 2 "H1" "Message2"
-      m 3 "H2" "Message1"
-      m 4 "H2" "Message2"
-      m 5 "H2" "Message3"
-      m 6 "H2" "Message4"
-      m 7 "H2" "Message5"
-      m 8 "H2" "Message6"
-      m 9 "H1" "Message3" ]
+    [ m 1 1 "Message1"
+      m 2 1 "Message2"
+      m 3 2 "Message1"
+      m 4 2 "Message2"
+      m 5 2 "Message3"
+      m 6 2 "Message4"
+      m 7 2 "Message5"
+      m 8 2 "Message6"
+      m 9 1 "Message3" ]
 
 let displayMessage message = printfn "%A" message
 

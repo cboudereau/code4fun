@@ -6,7 +6,7 @@ open Microsoft.FSharp.Control
 type Agent<'a> = MailboxProcessor<'a>
 
 type SequenceMessage<'a> = 
-    { sequenceId : string
+    { sequenceId : int
       id : int
       message : 'a }
 
