@@ -74,7 +74,7 @@ let actorPool factory limit =
             }
         listen Map.empty
 
-let workerPool = actorPool (workerFactory displayMessage) 2
+let workerPool = actorPool (workerFactory displayMessage) 3
 
 let fromWorkerPool id = workerPool.PostAndAsyncReply <| fun channel -> (channel.Reply, id)
 
