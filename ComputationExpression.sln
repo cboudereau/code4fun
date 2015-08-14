@@ -9,6 +9,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebServerBench", "WebServer
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Katas", "Katas\Katas.fsproj", "{2AFEE0DB-80B9-4613-91AA-B2F28C5D8EB8}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ActorModel", "ActorModel\ActorModel.fsproj", "{9AC2BE02-6BDB-4182-8A85-6A98C9593596}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{2AFEE0DB-80B9-4613-91AA-B2F28C5D8EB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AFEE0DB-80B9-4613-91AA-B2F28C5D8EB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AFEE0DB-80B9-4613-91AA-B2F28C5D8EB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AC2BE02-6BDB-4182-8A85-6A98C9593596}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AC2BE02-6BDB-4182-8A85-6A98C9593596}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AC2BE02-6BDB-4182-8A85-6A98C9593596}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AC2BE02-6BDB-4182-8A85-6A98C9593596}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
