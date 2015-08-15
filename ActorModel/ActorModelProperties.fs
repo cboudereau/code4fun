@@ -76,3 +76,24 @@ module PropertiesBasedOnRandomMessages =
             printfn "messages %i in %ims" numberOfMessages stopWatch.ElapsedMilliseconds
 
         messages |> hasOrderPreserved output
+
+    [<Property(Timeout=3000000)>]
+    let ``All messages respect sequence number order into a sequence with not enought workers`` (messages:SequenceMessage<Message> list) = 
+        let outbox = messageReceiver ()
+        let receiveMessage = receiveMessage outbox
+        let getMessages () = getMessages outbox
+        let numberOfMessages = messages |> List.length |> int64
+
+        let stopWatch = System.Diagnostics.Stopwatch.StartNew()
+        messages 
+        |> ActorModel.dispatch 100 receiveMessage
+        |> Async.RunSynchronously
+
+        let output = messages |> waitAllMessages getMessages 
+        
+        match stopWatch.ElapsedMilliseconds with
+        | 0L -> printfn "no messages"
+        | _ -> 
+            printfn "messages %i in %ims" numberOfMessages stopWatch.ElapsedMilliseconds
+
+        messages |> hasOrderPreserved output

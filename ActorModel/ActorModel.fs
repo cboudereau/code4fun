@@ -1,6 +1,5 @@
 ﻿module ActorModel
 
-open System
 open Microsoft.FSharp.Control
 
 type Actor<'a> = MailboxProcessor<'a>
