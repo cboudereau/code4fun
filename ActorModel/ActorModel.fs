@@ -52,9 +52,9 @@ let actorPool limit factory =
                 | None ->
                     match actors |> Map.toSeq |> Seq.length with
                     | l when l = limit ->
-                        let remain = actors |> collect
+                        let survivors = actors |> collect
                         None |> reply
-                        do! remain |> listen
+                        do! survivors |> listen
                     | _ ->
                         let newActor = factory key
                         newActor |> Some |> reply
