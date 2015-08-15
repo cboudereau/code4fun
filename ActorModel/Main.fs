@@ -5,7 +5,7 @@ open Availpro
 
 let m number hotelId body = 
     let message = { number = number; hotelId = hotelId; body = body }
-    { id = number
+    { uid = number
       sequenceId = hotelId
       message = message }
 

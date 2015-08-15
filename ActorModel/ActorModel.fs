@@ -7,7 +7,7 @@ type Agent<'a> = MailboxProcessor<'a>
 
 type SequenceMessage<'a> = 
     { sequenceId : int
-      id : int
+      uid : int
       message : 'a }
 
 type StateFullActorMessage<'a> = 
