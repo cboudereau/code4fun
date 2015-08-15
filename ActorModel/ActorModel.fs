@@ -14,12 +14,15 @@ type StateFullActorMessage<'a> =
     | Take of 'a
     | Leave of 'a
 
+[<Literal>]
+let lambda = 50 (*2*Read message Latency*)
+
 let workerFactory job suicideSignal id = 
     Agent.Start <| fun inbox -> 
         let rec listen() = 
             async {
                 try
-                    let! receive = inbox.Receive(1000)
+                    let! receive = inbox.Receive(lambda)
                     do! receive job
                     do! listen()
                 with
@@ -31,7 +34,7 @@ let workerFactory job suicideSignal id =
         printfn "%A worker birth" id
         listen()
 
-let actorPool factory limit = 
+let actorPool limit factory = 
     Agent.Start <| fun inbox -> 
         let rec listen actors = 
             async {
@@ -46,7 +49,7 @@ let actorPool factory limit =
                     | None ->
                         if actors |> Map.toSeq |> Seq.length > limit 
                         then 
-                            do! Async.Sleep 100
+                            do! Async.Sleep lambda
                             None |> replyChannel 
                             do! actors |> listen
                         else
@@ -61,13 +64,13 @@ let actorPool factory limit =
             }
         listen Map.empty
 
-let workerPool workerCount job = actorPool (workerFactory job) workerCount
+let workerPool workerCount job = job |> workerFactory |> actorPool workerCount
 
 let consume workerCount job queue = 
     
     //Here is to have to worker count limit on worker pool
-    let limitedWorkerPool = workerPool workerCount job
-    let fromWorkerPool id = limitedWorkerPool.PostAndAsyncReply <| fun channel -> (channel.Reply, id)
+    let sizedWorkerPool = workerPool workerCount job
+    let fromWorkerPool id = sizedWorkerPool.PostAndAsyncReply <| fun channel -> (channel.Reply, id)
     
     //Here replace with azure receive, idea is atomitically receive process and commit message asynchronously
     let receive message job = async { return job message }
