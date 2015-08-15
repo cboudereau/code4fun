@@ -8,7 +8,7 @@ module PropertiesBasedOnRandomMessages =
     
     type MessageReceive<'a> = 
         | Get
-        | Put of 'a
+        | Post of 'a
 
     let messageReceiver () = 
         Actor.Start <| fun inbox ->
@@ -17,9 +17,9 @@ module PropertiesBasedOnRandomMessages =
                     let! (replyChannel, message) = inbox.Receive()
                     match message with
                     | Get -> 
-                        replyChannel messages 
+                        messages |> List.rev |> replyChannel
                         do! listen messages
-                    | Put m -> 
+                    | Post m -> 
                         replyChannel messages
                         do! (m :: messages) |> listen
                 }
@@ -30,7 +30,7 @@ module PropertiesBasedOnRandomMessages =
         asyncGetMessages |> Async.RunSynchronously
 
     let receiveMessage (messageReceiver:Actor<_>) message = 
-        let messages = messageReceiver.PostAndAsyncReply <| fun channel -> channel.Reply, (Put message)
+        let messages = messageReceiver.PostAndAsyncReply <| fun channel -> channel.Reply, (Post message)
         messages |> Async.Ignore |> Async.RunSynchronously
 
     let hasOrderPreserved output messages = 
@@ -41,27 +41,24 @@ module PropertiesBasedOnRandomMessages =
         |> List.forall(fun (sequenceId, l) -> 
             let seqNumbers = messagesPerSequence |> Map.find sequenceId |> List.map(fun m -> m.message.sequenceNumber)
             let actual = l |> List.map(fun m -> m.message.sequenceNumber)
-            let isTrue = seqNumbers = actual
-            isTrue)
+            seqNumbers = actual)
 
     let waitAllMessages getMessages messages = 
+        let messageLength = messages |> List.length
         let rec listenAllMessages () = 
             async{
                 let state = getMessages ()
-                if state |> List.length = (messages |> List.length)
-                then return (state  |> List.rev)
-                else 
-                    do! Async.Sleep 2
-                    return! listenAllMessages () }
+                if state |> List.length = messageLength
+                then return state
+                else return! listenAllMessages () }
         listenAllMessages () |> Async.RunSynchronously
 
-
     [<Property(Timeout=3000000)>]
-    let ``All messages respect sequence number order into a sequence`` (messages:SequenceMessage<Message> list) = 
+    let ``All messages respect sequence number order into a sequence`` messages = 
         let outbox = messageReceiver ()
         let receiveMessage = receiveMessage outbox
         let getMessages () = getMessages outbox
-        let numberOfMessages = messages |> List.length |> int64
+        let numberOfMessages = messages |> List.length
 
         let stopWatch = System.Diagnostics.Stopwatch.StartNew()
         messages 
@@ -72,17 +69,16 @@ module PropertiesBasedOnRandomMessages =
         
         match stopWatch.ElapsedMilliseconds with
         | 0L -> printfn "no messages"
-        | _ -> 
-            printfn "messages %i in %ims" numberOfMessages stopWatch.ElapsedMilliseconds
+        | elapsed ->  printfn "messages %i in %ims" numberOfMessages elapsed
 
         messages |> hasOrderPreserved output
 
     [<Property(Timeout=3000000)>]
-    let ``All messages respect sequence number order into a sequence with not enought workers`` (messages:SequenceMessage<Message> list) = 
+    let ``All messages respect sequence number order into a sequence with not enought workers`` messages = 
         let outbox = messageReceiver ()
         let receiveMessage = receiveMessage outbox
         let getMessages () = getMessages outbox
-        let numberOfMessages = messages |> List.length |> int64
+        let numberOfMessages = messages |> List.length
 
         let stopWatch = System.Diagnostics.Stopwatch.StartNew()
         messages 
@@ -93,7 +89,6 @@ module PropertiesBasedOnRandomMessages =
         
         match stopWatch.ElapsedMilliseconds with
         | 0L -> printfn "no messages"
-        | _ -> 
-            printfn "messages %i in %ims" numberOfMessages stopWatch.ElapsedMilliseconds
+        | elapsed ->  printfn "messages %i in %ims" numberOfMessages elapsed
 
         messages |> hasOrderPreserved output
