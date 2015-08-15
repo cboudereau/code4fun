@@ -24,7 +24,7 @@ let displayMessage message = printfn "%A" message
 
 let run () = 
     messages 
-    |> ActorModel.consume 3 displayMessage 
+    |> ActorModel.dispatch 3 displayMessage 
     |> Async.RunSynchronously
 
 [<EntryPoint>]

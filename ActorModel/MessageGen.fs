@@ -13,7 +13,7 @@ type RandomMessages =
         let gen maxHotels uniqueIds = 
             let infinite max = Seq.initInfinite(fun i -> if i < max then i else 0)
             let hotelIds = infinite maxHotels
-            let hotelMessageIds = infinite 10000000
+            let hotelMessageIds = Seq.initInfinite(fun i -> i)
 
             Seq.map3 (fun uniqueId hotelId hotelMessageNumber -> 
                 let message = { uid = uniqueId; sequenceId = hotelId; sequenceNumber = hotelMessageNumber }
@@ -21,7 +21,7 @@ type RandomMessages =
             |> Seq.toList
         
         Arb.generate<NonNegativeInt>
-        |> Gen.map(fun (NonNegativeInt max) -> [1 .. max])
-        |> Gen.map(gen 10)
+        |> Gen.map(fun (NonNegativeInt value) -> [1 .. (value * 500)])
+        |> Gen.map(gen 3000)
     
     static member Values() = RandomMessages.Gen() |> Arb.fromGen

@@ -59,6 +59,7 @@
     <Compile Include="Availpro.fs" />
     <Compile Include="MessageGen.fs" />
     <Compile Include="MessageRandomProperties.fs" />
+    <Compile Include="ActorModelProperties.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   <ItemGroup>
