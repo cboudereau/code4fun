@@ -22,7 +22,7 @@ let workerFactory job _ =
                 | Process receive ->
                     do! receive job
                     do! listen()
-                | Dispose -> ()
+                | Dispose -> return ()
             }
         //printfn "%A worker birth" id
         listen()
@@ -37,9 +37,9 @@ let actorPool limit factory =
             |> Seq.toList
 
         actors 
-        |> Map.toSeq 
-        |> Seq.filter(fun (k,_) -> garbage |> Seq.exists(fun id -> id = k))
-        |> Map.ofSeq
+        |> Map.toList 
+        |> List.filter(fun (k,_) -> garbage |> List.exists(fun id -> id = k) |> not)
+        |> Map.ofList
 
     Actor.Start <| fun inbox -> 
         let rec listen actors = 
@@ -50,13 +50,12 @@ let actorPool limit factory =
                     actor |> Some |> reply
                     do! actors |> listen
                 | None ->
-                    if actors |> Map.toSeq |> Seq.length > limit 
-                    then 
+                    match actors |> Map.toSeq |> Seq.length with
+                    | l when l = limit ->
                         let remain = actors |> collect
-                        do! Async.Sleep 10
                         None |> reply
                         do! remain |> listen
-                    else
+                    | _ ->
                         let newActor = factory key
                         newActor |> Some |> reply
                         do! actors |> Map.add key newActor |> listen
