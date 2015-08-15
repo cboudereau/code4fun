@@ -11,7 +11,7 @@ type Message =
 type RandomMessages =
     static member Gen() = 
         let gen maxHotels uniqueIds = 
-            let infinite max = Seq.initInfinite(fun i -> if i < max then i else 0)
+            let infinite max = Seq.initInfinite(fun i -> if i > max then 0 else i)
             let hotelIds = infinite maxHotels
             let hotelMessageIds = Seq.initInfinite(fun i -> i)
 
