@@ -1,73 +1,74 @@
-﻿open System
-open Microsoft.FSharp.Control
+﻿module ActorModel =
 
-module ActorModel = 
+    open Microsoft.FSharp.Control
 
-    type Agent<'a> = MailboxProcessor<'a>
+    type Actor<'a> = MailboxProcessor<'a>
 
     type SequenceMessage<'a> = 
-        { sequenceId : string
-          id : int
+        { sequenceId : int
+          uid : int
           message : 'a }
 
-    type StateFullActorMessage<'a> = 
-        | Take of 'a
-        | Leave of 'a
+    type WorkerMessage<'a> = 
+        | Process of 'a
+        | Dispose
 
-    let workerFactory job suicideSignal id = 
-        Agent.Start <| fun inbox -> 
+    let workerFactory job _ = 
+        Actor.Start <| fun inbox -> 
             let rec listen() = 
                 async {
-                    try
-                        let! receive = inbox.Receive(1000)
+                    let! message = inbox.Receive()
+                    match message with
+                    | Process receive ->
                         do! receive job
                         do! listen()
-                    with
-                    | :? TimeoutException as ex -> 
-                        printfn "%A should Dead" id
-                        let! candidate = suicideSignal id
-                        candidate |> ignore
+                    | Dispose -> return ()
                 }
-            printfn "%A worker birth" id
+            //printfn "%A worker birth" id
             listen()
 
-    let actorPool factory limit = 
-        Agent.Start <| fun inbox -> 
+    let actorPool limit factory = 
+        let collect actors = 
+            let garbage = 
+                actors 
+                |> Map.toSeq 
+                |> Seq.filter(fun (_,(a:Actor<_>)) -> a.CurrentQueueLength = 0) 
+                |> Seq.map(fun (k, a) -> a.Post Dispose; k)
+                |> Seq.toList
+
+            actors 
+            |> Map.toList 
+            |> List.filter(fun (k,_) -> garbage |> List.exists(fun id -> id = k) |> not)
+            |> Map.ofList
+
+        Actor.Start <| fun inbox -> 
             let rec listen actors = 
                 async {
-                    let suicideSignal id = inbox.PostAndAsyncReply <| fun channel -> (channel.Reply, Leave id)
-                    let! (replyChannel, stateFullMessage) = inbox.Receive()
-                    match stateFullMessage with
-                    | Take key -> 
-                        match actors |> Map.tryFind key with
-                        | Some actor -> 
-                            actor |> Some |> replyChannel
-                            do! actors |> listen
-                        | None ->
-                            if actors |> Map.toSeq |> Seq.length > limit 
-                            then 
-                                do! Async.Sleep 100
-                                None |> replyChannel 
-                                do! actors |> listen
-                            else
-                                let newActor = factory suicideSignal key
-                                newActor |> Some |> replyChannel
-                                do! actors |> Map.add key newActor |> listen
-                    | Leave key -> 
-                        let candidate = actors |> Map.find key
-                        candidate |> Some |> replyChannel 
-                        printfn "%A Left" key
-                        do! actors |> Map.remove key |> listen
+                    let! (reply, key) = inbox.Receive()
+                    match actors |> Map.tryFind key with
+                    | Some actor -> 
+                        actor |> Some |> reply
+                        do! actors |> listen
+                    | None ->
+                        match actors |> Map.toSeq |> Seq.length with
+                        | l when l = limit ->
+                            let remain = actors |> collect
+                            None |> reply
+                            do! remain |> listen
+                        | _ ->
+                            let newActor = factory key
+                            newActor |> Some |> reply
+                            do! actors |> Map.add key newActor |> listen
                 }
             listen Map.empty
 
-    let workerPool workerCount job = actorPool (workerFactory job) workerCount
+    let workerPool workerCount job = job |> workerFactory |> actorPool workerCount
 
-    let consume workerCount job queue = 
+    let dispatch workerCount job queue = 
         
         //Here is to have to worker count limit on worker pool
-        let limitedWorkerPool = workerPool workerCount job
-        let fromWorkerPool id = limitedWorkerPool.PostAndAsyncReply <| fun channel -> (channel.Reply, id)
+        let sizedWorkerPool = workerPool workerCount job
+        let fromWorkerPool id = sizedWorkerPool.PostAndAsyncReply <| fun channel -> (channel.Reply, id)
         
         //Here replace with azure receive, idea is atomitically receive process and commit message asynchronously
         let receive message job = async { return job message }
@@ -76,42 +77,46 @@ module ActorModel =
             async {
                 match queue with
                 | h :: t ->
-                    let! maybeActor = Take h.sequenceId |> fromWorkerPool
+                    let! maybeActor = h.sequenceId |> fromWorkerPool
                     match maybeActor with
-                    | Some actor -> 
-                        actor.Post (receive h)
+                    | Some actor ->
+                        actor.Post (h |> receive |> Process) 
                         do! peek t
-                    | None -> do! peek queue
+                    | None ->
+                        do! peek queue
                 | [] -> 
                     //Here renew session to get new messages
-                    printfn "finished"
+                    //printfn "finished"
+                    ()
             }
         peek queue
-        
-module Availpro = 
-    open ActorModel
-    
-    type Message = { number:int; hotelId:string; body:string }
 
-    let m number hotelId body = 
-        let message = { number = number; hotelId = hotelId; body = body }
-        { id = number
-          sequenceId = hotelId
-          message = message }
+module Availpro =
 
-    let messages = 
-        [ m 1 "H1" "Message1"
-          m 2 "H1" "Message2"
-          m 3 "H2" "Message1"
-          m 4 "H2" "Message2"
-          m 5 "H2" "Message3"
-          m 6 "H2" "Message4"
-          m 7 "H2" "Message5"
-          m 8 "H2" "Message6"
-          m 9 "H1" "Message3" ]
-    
-    let displayMessage message = printfn "%A" message
-    
-    let run () = messages |> consume 3 displayMessage |> Async.RunSynchronously
+    type Message = { number:int; hotelId:int; body:string }
 
-Availpro.run()
+open ActorModel
+open Availpro
+
+let m number hotelId body = 
+    let message = { number = number; hotelId = hotelId; body = body }
+    { uid = number
+      sequenceId = hotelId
+      message = message }
+
+let messages = 
+    [ m 1 1 "Message1"
+      m 2 1 "Message2"
+      m 3 2 "Message1"
+      m 4 2 "Message2"
+      m 5 2 "Message3"
+      m 6 2 "Message4"
+      m 7 2 "Message5"
+      m 8 2 "Message6"
+      m 9 1 "Message3" ]
+
+let displayMessage message = printfn "%A" message
+
+messages 
+|> ActorModel.dispatch 3 displayMessage 
+|> Async.RunSynchronously
