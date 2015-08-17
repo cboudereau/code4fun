@@ -53,8 +53,28 @@ module PropertiesBasedOnRandomMessages =
                 else return! listenAllMessages () }
         listenAllMessages () |> Async.RunSynchronously
 
+    let printStats messages = 
+        let internalPrintStats messages = 
+            let group = messages |> List.groupBy(fun m -> m.message.sequenceId)
+
+            let (sequenceId, count) = 
+                group
+                |> List.map(
+                    fun (id, messages) -> 
+                        let messageCount = messages |> List.length
+                        id, messageCount)
+                |> List.maxBy(fun (_, count) -> count)
+            printfn "sequenceId : %i with %i messages" sequenceId count
+            group |> Seq.length |> printfn "printfn number of Sequences %i"
+
+        match messages with
+        | [] -> printfn ""
+        | _ -> internalPrintStats messages
+
     [<Property(Timeout=3000000)>]
     let ``All messages respect sequence number order into a sequence`` messages = 
+        messages |> printStats 
+        
         let outbox = messageReceiver ()
         let receiveMessage = receiveMessage outbox
         let getMessages () = getMessages outbox
@@ -69,12 +89,16 @@ module PropertiesBasedOnRandomMessages =
         
         match stopWatch.ElapsedMilliseconds with
         | 0L -> printfn "no messages"
-        | elapsed ->  printfn "messages %i in %ims" numberOfMessages elapsed
+        | elapsed ->  
+            printfn "messages %i in %ims" numberOfMessages elapsed
+            printfn ""
 
         messages |> hasOrderPreserved output
 
     [<Property(Timeout=3000000)>]
     let ``All messages respect sequence number order into a sequence with not enought workers`` messages = 
+        messages |> printStats 
+
         let outbox = messageReceiver ()
         let receiveMessage = receiveMessage outbox
         let getMessages () = getMessages outbox

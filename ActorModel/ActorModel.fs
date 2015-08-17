@@ -17,13 +17,18 @@ let workerFactory job _ =
     Actor.Start <| fun inbox -> 
         let rec listen() = 
             async {
-                let! message = inbox.Receive()
+                let! (reply, message) = inbox.Receive()
                 match message with
                 | Process receive ->
                     do! receive job
+                    reply ()
                     do! listen()
-                | Dispose -> return ()
+                | Dispose -> 
+                    //Dispose Azure session
+                    reply ()
+                    return ()
             }
+        //Create Azure session
         //printfn "%A worker birth" id
         listen()
 
@@ -33,7 +38,13 @@ let actorPool limit factory =
             actors 
             |> Map.toSeq 
             |> Seq.filter(fun (_,(a:Actor<_>)) -> a.CurrentQueueLength = 0) 
-            |> Seq.map(fun (k, a) -> a.Post Dispose; k)
+            |> Seq.map(
+                fun (k, a) -> 
+                    async {
+                        do! a.PostAndAsyncReply <| fun channel -> channel.Reply, Dispose
+                        return k })
+            |> Async.Parallel
+            |> Async.RunSynchronously
             |> Seq.toList
 
         actors 
@@ -80,7 +91,7 @@ let dispatch workerCount job queue =
                 let! maybeActor = h.sequenceId |> fromWorkerPool
                 match maybeActor with
                 | Some actor ->
-                    actor.Post (h |> receive |> Process) 
+                    do! actor.PostAndAsyncReply <| fun channel -> channel.Reply, (h |> receive |> Process) 
                     do! peek t
                 | None ->
                     do! peek queue
