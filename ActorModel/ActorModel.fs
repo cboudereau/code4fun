@@ -1,36 +1,38 @@
 ﻿module ActorModel
 
 open Microsoft.FSharp.Control
+open Microsoft.ServiceBus.Messaging;
+open Microsoft.WindowsAzure;
 
 type Actor<'a> = MailboxProcessor<'a>
 
-type SequenceMessage<'a> = 
-    { sequenceId : int
-      uid : int
-      message : 'a }
-
-type WorkerMessage<'a> = 
-    | Process of 'a
+type WorkerMessage = 
+    | Process 
     | Dispose
 
-let workerFactory job _ = 
+let workerFactory (azureClient:QueueClient) sessionId job = 
     Actor.Start <| fun inbox -> 
-        let rec listen() = 
+        let rec listen (session:MessageSession) = 
             async {
                 let! (reply, message) = inbox.Receive()
+                
                 match message with
-                | Process receive ->
-                    do! receive job
+                | Process ->
                     reply ()
-                    do! listen()
+                    //TODO handle session expiration
+                    let message = session.Receive()
+                    job message
+                    //TODO handle errors
+                    message.Complete()
+                    do! listen session
                 | Dispose -> 
-                    //Dispose Azure session
+                    //TODO handle session expiration
+                    session.Close()
                     reply ()
                     return ()
             }
-        //Create Azure session
-        //printfn "%A worker birth" id
-        listen()
+        let session = azureClient.AcceptMessageSession(sessionId:string)
+        listen session
 
 let actorPool limit factory = 
     let collect actors = 
@@ -67,37 +69,57 @@ let actorPool limit factory =
                         None |> reply
                         do! survivors |> listen
                     | _ ->
-                        let newActor = factory key
+                        let newActor = factory ()
                         newActor |> Some |> reply
                         do! actors |> Map.add key newActor |> listen
             }
         listen Map.empty
 
-let workerPool workerCount job = job |> workerFactory |> actorPool workerCount
+let workerPool azureClient workerCount job sessionId  = 
+    let wf () = workerFactory azureClient sessionId job 
+    actorPool workerCount wf
 
 let dispatch workerCount job queue = 
-    
     //Here is to have to worker count limit on worker pool
-    let sizedWorkerPool = workerPool workerCount job
-    let fromWorkerPool id = sizedWorkerPool.PostAndAsyncReply <| fun channel -> (channel.Reply, id)
+    let sizedWorkerPool = workerPool queue workerCount job
+    let fromWorkerPool sessionId = (sizedWorkerPool sessionId).PostAndAsyncReply <| fun channel -> (channel.Reply, sessionId)
     
     //Here replace with azure receive, idea is atomitically receive process and commit message asynchronously
     let receive message job = async { return job message }
 
-    let rec peek queue = 
+    let rec azurePeek queue = 
+        let rec peek (queue : QueueClient) = 
+            async{
+                match queue.Peek() with
+                | null -> 
+                    do! Async.Sleep 100
+                    return! peek queue
+                | message -> return message 
+            }
+        
+
         async {
-            match queue with
-            | h :: t ->
-                let! maybeActor = h.sequenceId |> fromWorkerPool
-                match maybeActor with
-                | Some actor ->
-                    do! actor.PostAndAsyncReply <| fun channel -> channel.Reply, (h |> receive |> Process) 
-                    do! peek t
-                | None ->
-                    do! peek queue
-            | [] -> 
-                //Here renew session to get new messages
-                //printfn "finished"
-                ()
+            let! message = peek queue
+            
+            let! maybeActor = message.SessionId |> fromWorkerPool
+
+            match maybeActor with
+            | Some actor -> 
+                do! actor.PostAndAsyncReply <| fun channel -> channel.Reply, Process
+            | None -> 
+                do! Async.Sleep 10
+                do! azurePeek queue
         }
-    peek queue
+
+//        async {
+//            let! message = peek queue
+//
+//            let! maybeActor = message.SessionId |> fromWorkerPool
+//                match maybeActor with
+//                | Some actor ->
+//                    do! actor.PostAndAsyncReply <| fun channel -> channel.Reply, (h |> receive |> Process) 
+//                    do! peek t
+//                | None ->
+//                    do! peek queue
+//        }
+    azurePeek queue

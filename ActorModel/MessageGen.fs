@@ -2,6 +2,7 @@
 
 open ActorModel
 open FsCheck
+open Microsoft.ServiceBus.Messaging
 
 type Message = 
     { uid : int
@@ -10,18 +11,18 @@ type Message =
 
 type RandomMessages =
     static member Gen() = 
-        let gen maxHotels uniqueIds = 
-            let infinite max = Seq.initInfinite(fun i -> if i > max then 0 else i)
-            let hotelIds = infinite maxHotels
-            let hotelMessageIds = Seq.initInfinite(fun i -> i)
+        let createTestMessage hotelId =
+            let message = new BrokeredMessage(sprintf "Message X for hotel %i" hotelId)
+            message.SessionId <- string hotelId
+            message
 
-            Seq.map3 (fun uniqueId hotelId hotelMessageNumber -> 
-                let message = { uid = uniqueId; sequenceId = hotelId; sequenceNumber = hotelMessageNumber }
-                { sequenceId = hotelId; uid = uniqueId; message = message }) uniqueIds hotelIds hotelMessageIds
-            |> Seq.toList
-        
-        Arb.generate<NonNegativeInt>
-        |> Gen.map(fun (NonNegativeInt value) -> [1 .. (value * 500)])
-        |> Gen.map(gen 500)
+        let populateQueue queue = 
+            Arb.generate<NonNegativeInt>
+            |> Gen.map(fun (NonNegativeInt i) -> i * 5)
+            |> Gen.map createTestMessage
+
+        "test-session"
+        |> Azure.createQueueSender
+        |> populateQueue
     
     static member Values() = RandomMessages.Gen() |> Arb.fromGen
