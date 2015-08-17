@@ -11,12 +11,11 @@ let getSessionId (message : BrokeredMessage) = message.SessionId
 let getProperty<'a> name (message:BrokeredMessage) = message.Properties.[name] :?> 'a
 let getNumber (message:BrokeredMessage) = message |> getProperty<string> number
 
-let send (queue:QueueClient) message = 
-            queue.Send message
+let send (queue:QueueClient) message = message |> queue.Send
 
 let sendAll (queue:QueueClient) messages = 
-    for message in messages do
-        message |> send queue
+    messages 
+    |> List.map (send queue) 
   
 let connectionString = CloudConfigurationManager.GetSetting("Microsoft.ServiceBus.ConnectionString")
                  

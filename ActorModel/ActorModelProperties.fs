@@ -132,4 +132,4 @@ module PropertiesBasedOnRandomMessages =
 
     [<Property(Timeout=3000000, MaxTest=1)>]
     let ``All messages respect sequence number order into a sequence with not enought workers`` messages = 
-        run 5 messages
+        run 20 messages

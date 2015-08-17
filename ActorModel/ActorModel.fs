@@ -95,16 +95,23 @@ let dispatch workerCount job queue =
                 | message -> return message 
             }
 
+        let getActor sessionId = 
+            let rec getActor sessionId = 
+                async {
+                    let! maybeActor = sessionId |> fromWorkerPool
+                    match maybeActor with
+                    | Some actor -> return actor
+                    | None -> 
+                        do! Async.Sleep 100
+                        return! getActor sessionId
+                }
+            getActor sessionId
+                 
+
         async {
             let! message = peek queue
-            
-            let! maybeActor = message.SessionId |> fromWorkerPool
-
-            do!
-                match maybeActor with
-                | Some actor -> actor.PostAndAsyncReply <| fun channel -> channel.Reply, Process
-                | None -> Async.Sleep 100
-            
+            let! actor = message.SessionId |> getActor
+            do! actor.PostAndAsyncReply <| fun channel -> channel.Reply, Process
             do! azurePeek queue
         }
 
