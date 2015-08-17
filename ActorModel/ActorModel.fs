@@ -85,13 +85,13 @@ let dispatch workerCount job queue =
     let sizedWorkerPool = workerPool queue workerCount job
     let fromWorkerPool sessionId = sizedWorkerPool.PostAndAsyncReply <| fun channel -> (channel.Reply, sessionId)
     
-    let rec azurePeek queue = 
-        let rec peek (queue : QueueClient) = 
+    let rec peek queue = 
+        let rec peekMessage (queue : QueueClient) = 
             async{
                 match queue.Peek() with
                 | null -> 
                     do! Async.Sleep 100
-                    return! peek queue
+                    return! peekMessage queue
                 | message -> return message 
             }
 
@@ -106,13 +106,12 @@ let dispatch workerCount job queue =
                         return! getActor sessionId
                 }
             getActor sessionId
-                 
 
         async {
-            let! message = peek queue
+            let! message = peekMessage queue
             let! actor = message.SessionId |> getActor
             do! actor.PostAndAsyncReply <| fun channel -> channel.Reply, Process
-            do! azurePeek queue
+            do! peek queue
         }
 
-    azurePeek queue
+    peek queue
