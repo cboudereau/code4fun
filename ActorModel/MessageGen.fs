@@ -20,7 +20,7 @@ type RandomMessages =
 
         Arb.generate<NonNegativeInt>
         |> Gen.map createTestMessage
-        |> Gen.listOfLength 10
+        |> Gen.listOfLength 100
 
 
     static member Values() = RandomMessages.Gen() |> Arb.fromGen

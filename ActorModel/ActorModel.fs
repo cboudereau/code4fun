@@ -31,7 +31,7 @@ let workerFactory (azureClient:QueueClient) job sessionId =
                         session.Close()
                         reply ()
                         return ()
-                with ex -> printfn "%A" ex
+                with ex -> printfn "Exception occured in worker --> %A" ex
             }
         let session = azureClient.AcceptMessageSession(sessionId:string)
         listen session
