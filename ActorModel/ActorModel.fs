@@ -38,23 +38,23 @@ let workerFactory (azureClient:QueueClient) job sessionId =
 
 let actorPool limit factory = 
     let collect actors = 
-        let garbage = 
-            actors 
-            |> Map.toSeq 
-            |> Seq.filter(fun (_,(a:Actor<_>)) -> a.CurrentQueueLength = 0) 
-            |> Seq.map(
-                fun (k, a) -> 
-                    async {
-                        do! a.PostAndAsyncReply <| fun channel -> channel.Reply, Dispose
-                        return k })
-            |> Async.Parallel
-            |> Async.RunSynchronously
-            |> Seq.toList
+        async {
+            let! garbage = 
+                actors 
+                |> Map.toSeq 
+                |> Seq.filter(fun (_,(a:Actor<_>)) -> a.CurrentQueueLength = 0) 
+                |> Seq.map(
+                    fun (k, a) -> 
+                        async {
+                            do! a.PostAndAsyncReply <| fun channel -> channel.Reply, Dispose
+                            return k })
+                |> Async.Parallel
 
-        actors 
-        |> Map.toList 
-        |> List.filter(fun (k,_) -> garbage |> List.exists(fun id -> id = k) |> not)
-        |> Map.ofList
+            return
+                actors 
+                |> Map.toList 
+                |> List.filter(fun (k,_) -> garbage |> Array.exists(fun id -> id = k) |> not)
+                |> Map.ofList }
 
     Actor.Start <| fun inbox -> 
         let rec listen pool = 
@@ -67,7 +67,7 @@ let actorPool limit factory =
                 | None ->
                     match pool |> Map.toSeq |> Seq.length with
                     | l when l = limit ->
-                        let survivors = pool |> collect
+                        let! survivors = pool |> collect
                         None |> reply
                         do! survivors |> listen
                     | _ ->
@@ -90,22 +90,20 @@ let dispatch workerCount job queue =
             async{
                 match queue.Peek() with
                 | null -> 
-                    do! Async.Sleep 100
+                    do! Async.Sleep 50
                     return! peekMessage queue
                 | message -> return message 
             }
 
-        let getActor sessionId = 
-            let rec getActor sessionId = 
-                async {
-                    let! maybeActor = sessionId |> fromWorkerPool
-                    match maybeActor with
-                    | Some actor -> return actor
-                    | None -> 
-                        do! Async.Sleep 100
-                        return! getActor sessionId
-                }
-            getActor sessionId
+        let rec getActor sessionId = 
+            async {
+                let! maybeActor = sessionId |> fromWorkerPool
+                match maybeActor with
+                | Some actor -> return actor
+                | None -> 
+                    do! Async.Sleep 100
+                    return! getActor sessionId
+            }
 
         async {
             let! message = peekMessage queue
