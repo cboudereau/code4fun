@@ -81,7 +81,6 @@ let workerPool azureClient workerCount job =
     job |> workerFactory azureClient |> actorPool workerCount
 
 let dispatch workerCount job queue = 
-    //Here is to have to worker count limit on worker pool
     let sizedWorkerPool = workerPool queue workerCount job
     let fromWorkerPool sessionId = sizedWorkerPool.PostAndAsyncReply <| fun channel -> (channel.Reply, sessionId)
     
