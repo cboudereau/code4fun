@@ -42,23 +42,23 @@
             |> Map.ofList
 
         Actor.Start <| fun inbox -> 
-            let rec listen actors = 
+            let rec listen pool = 
                 async {
                     let! (reply, key) = inbox.Receive()
-                    match actors |> Map.tryFind key with
+                    match pool |> Map.tryFind key with
                     | Some actor -> 
                         actor |> Some |> reply
-                        do! actors |> listen
+                        do! pool |> listen
                     | None ->
-                        match actors |> Map.toSeq |> Seq.length with
+                        match pool |> Map.toSeq |> Seq.length with
                         | l when l = limit ->
-                            let remain = actors |> collect
+                            let survivors = pool |> collect
                             None |> reply
-                            do! remain |> listen
+                            do! survivors |> listen
                         | _ ->
                             let newActor = factory key
                             newActor |> Some |> reply
-                            do! actors |> Map.add key newActor |> listen
+                            do! pool |> Map.add key newActor |> listen
                 }
             listen Map.empty
 

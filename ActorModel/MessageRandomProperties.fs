@@ -6,7 +6,9 @@ open ActorModel
 [<Arbitrary(typeof<RandomMessages>)>]
 module MessageGenProperties = 
     
-    [<Xunit.Fact>] let dummyTest() = Xunit.Assert.True(true)
+    [<Xunit.Fact>] 
+    let dummyTest() = 
+        Xunit.Assert.True(true)
 
     [<Property>]
     let ``Gen must generate message with unique id`` (messages:SequenceMessage<Message> list) =

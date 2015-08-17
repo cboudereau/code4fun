@@ -22,6 +22,6 @@ type RandomMessages =
         
         Arb.generate<NonNegativeInt>
         |> Gen.map(fun (NonNegativeInt value) -> [1 .. (value * 500)])
-        |> Gen.map(gen 3000)
+        |> Gen.map(gen 500)
     
     static member Values() = RandomMessages.Gen() |> Arb.fromGen
