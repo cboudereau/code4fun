@@ -5,6 +5,12 @@ open MessageGen
 open Microsoft.ServiceBus.Messaging
 open Microsoft.WindowsAzure
 
+module Async = 
+    open System.Threading
+    let cancellationTokenSource () = new CancellationTokenSource()
+    let cancel (cancellationTokenSource:CancellationTokenSource) = cancellationTokenSource.Cancel()
+    let token (cancellationTokenSource:CancellationTokenSource) = cancellationTokenSource.Token
+
 [<Arbitrary(typeof<RandomMessages>)>]
 module PropertiesBasedOnRandomMessages = 
     
@@ -36,26 +42,29 @@ module PropertiesBasedOnRandomMessages =
     let convertMessage (message:BrokeredMessage) = { sessionId = message.SessionId; number = message |> Azure.getNumber }
 
     let receiveMessage (messageReceiver:Actor<_>) message = 
-        let messages = messageReceiver.PostAndReply <| fun channel -> channel.Reply, (message |> convertMessage |> Post)
-        messages |> ignore
+        async {
+            let messages = messageReceiver.PostAndAsyncReply <| fun channel -> channel.Reply, (message |> convertMessage |> Post)
+            return! messages |> Async.Ignore }
 
-    let hasOrderPreserved output messages = 
-        let messagesPerSequence = messages |> List.groupBy(fun m -> m.sessionId) |> Map.ofList
+    let hasOrderPreserved input output = 
+        let messagesPerSession = input |> List.groupBy(fun m -> m.sessionId) |> Map.ofList
 
         output
         |> List.groupBy(fun m -> m.sessionId)
-        |> List.forall(fun (sequenceId, l) -> 
-            let seqNumbers = messagesPerSequence |> Map.find sequenceId |> List.map(fun m -> m.number)
+        |> List.forall(fun (sessionId, l) -> 
+            let seqNumbers = messagesPerSession |> Map.find sessionId |> List.map(fun m -> m.number)
             let actual = l |> List.map(fun m -> m.number)
             seqNumbers = actual)
 
-    let waitAllMessages getMessages messages = 
+    let waitAllMessages cancellationTokenSource getMessages messages = 
         let messageLength = messages |> List.length
         let rec listenAllMessages () = 
             async{
                 let state = getMessages ()
                 if state |> List.length = messageLength
-                then return state
+                then 
+                    cancellationTokenSource |> Async.cancel
+                    return state
                 else 
                     do! Async.Sleep 100
                     return! listenAllMessages () }
@@ -63,7 +72,7 @@ module PropertiesBasedOnRandomMessages =
 
     let printStats messages = 
         let internalPrintStats messages = 
-            let group = messages |> List.groupBy(Azure.getSessionId)
+            let group = messages |> List.groupBy(fun m -> m.sessionId)
 
             let (sequenceId, count) = 
                 group
@@ -86,6 +95,9 @@ module PropertiesBasedOnRandomMessages =
         
         try
             messages |> Azure.sendAll (Azure.createQueueSender queueName)
+            let input = messages |> List.map convertMessage
+
+            input |> printStats
 
             let outbox = messageReceiver ()
             let receiveMessage = receiveMessage outbox
@@ -93,11 +105,12 @@ module PropertiesBasedOnRandomMessages =
             
             let stopWatch = System.Diagnostics.Stopwatch.StartNew()
             
-            Azure.createQueueListener queueName
-            |> ActorModel.dispatch workerCount receiveMessage
-            |> Async.Start
+            let cancelToken = Async.cancellationTokenSource()
+             
+            let dispatcher = queueName |> Azure.createQueueListener |> ActorModel.dispatch workerCount receiveMessage
+            Async.Start(dispatcher, cancelToken |> Async.token)
 
-            let output = messages |> waitAllMessages getMessages 
+            let output = messages |> waitAllMessages cancelToken getMessages 
             let numberOfMessages = messages |> List.length
 
             match stopWatch.ElapsedMilliseconds with
@@ -106,9 +119,7 @@ module PropertiesBasedOnRandomMessages =
                 printfn "messages %i in %ims" numberOfMessages elapsed
                 printfn ""
 
-            let intput = messages |> List.map convertMessage
-
-            intput |> hasOrderPreserved output
+            output |> hasOrderPreserved input
 
         finally
             queueName |> Azure.deleteQueue

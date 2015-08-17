@@ -21,10 +21,10 @@ let workerFactory (azureClient:QueueClient) job sessionId =
                     | Process ->
                         reply ()
                         //TODO handle session expiration
-                        let message = session.Receive()
-                        job message
+                        let! message = session.ReceiveAsync() |> Async.AwaitTask
+                        do! job message
                         //TODO handle errors
-                        message.Complete()
+                        do! message.CompleteAsync() |> Async.AwaitTask
                         do! listen session
                     | Dispose -> 
                         //TODO handle session expiration
