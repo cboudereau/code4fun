@@ -8,6 +8,10 @@ open Microsoft.WindowsAzure
 [<Arbitrary(typeof<RandomMessages>)>]
 module PropertiesBasedOnRandomMessages = 
     
+    type TestMessage = 
+        { sessionId:string
+          number: string }
+
     type MessageReceive<'a> = 
         | Get
         | Post of 'a
@@ -27,22 +31,22 @@ module PropertiesBasedOnRandomMessages =
                 }
             listen List.empty
     
-    let getMessages (messageReceiver:Actor<_>)  = 
-        let asyncGetMessages = messageReceiver.PostAndAsyncReply <| fun channel -> channel.Reply, Get
-        asyncGetMessages |> Async.RunSynchronously
+    let getMessages (messageReceiver:Actor<_>)  = messageReceiver.PostAndReply <| fun channel -> channel.Reply, Get
+
+    let convertMessage (message:BrokeredMessage) = { sessionId = message.SessionId; number = message |> Azure.getNumber }
 
     let receiveMessage (messageReceiver:Actor<_>) message = 
-        let messages = messageReceiver.PostAndAsyncReply <| fun channel -> channel.Reply, (message |> Post)
+        let messages = messageReceiver.PostAndReply <| fun channel -> channel.Reply, (message |> convertMessage |> Post)
         messages |> ignore
 
     let hasOrderPreserved output messages = 
-        let messagesPerSequence = messages |> List.groupBy(Azure.getSessionId) |> Map.ofList
+        let messagesPerSequence = messages |> List.groupBy(fun m -> m.sessionId) |> Map.ofList
 
         output
-        |> List.groupBy(Azure.getSessionId)
+        |> List.groupBy(fun m -> m.sessionId)
         |> List.forall(fun (sequenceId, l) -> 
-            let seqNumbers = messagesPerSequence |> Map.find sequenceId |> List.map(Azure.getSequenceNumber)
-            let actual = l |> List.map(Azure.getSequenceNumber)
+            let seqNumbers = messagesPerSequence |> Map.find sequenceId |> List.map(fun m -> m.number)
+            let actual = l |> List.map(fun m -> m.number)
             seqNumbers = actual)
 
     let waitAllMessages getMessages messages = 
@@ -52,7 +56,9 @@ module PropertiesBasedOnRandomMessages =
                 let state = getMessages ()
                 if state |> List.length = messageLength
                 then return state
-                else return! listenAllMessages () }
+                else 
+                    do! Async.Sleep 100
+                    return! listenAllMessages () }
         listenAllMessages () |> Async.RunSynchronously
 
     let printStats messages = 
@@ -73,52 +79,45 @@ module PropertiesBasedOnRandomMessages =
         | [] -> printfn ""
         | _ -> internalPrintStats messages
 
-    [<Property(Timeout=3000000)>]
+    let queueName () = System.Guid.NewGuid().ToString()
+
+    let run workerCount messages = 
+        let queueName = queueName ()
+        
+        try
+            messages |> Azure.sendAll (Azure.createQueueSender queueName)
+
+            let outbox = messageReceiver ()
+            let receiveMessage = receiveMessage outbox
+            let getMessages () = getMessages outbox
+            
+            let stopWatch = System.Diagnostics.Stopwatch.StartNew()
+            
+            Azure.createQueueListener queueName
+            |> ActorModel.dispatch workerCount receiveMessage
+            |> Async.Start
+
+            let output = messages |> waitAllMessages getMessages 
+            let numberOfMessages = messages |> List.length
+
+            match stopWatch.ElapsedMilliseconds with
+            | 0L -> printfn "no messages"
+            | elapsed ->  
+                printfn "messages %i in %ims" numberOfMessages elapsed
+                printfn ""
+
+            let intput = messages |> List.map convertMessage
+
+            intput |> hasOrderPreserved output
+
+        finally
+            queueName |> Azure.deleteQueue
+
+
+    [<Property(Timeout=3000000, MaxTest=1)>]
     let ``All messages respect sequence number order into a sequence`` messages = 
-        
-        messages
-        |> Azure.sendAll (Azure.createQueueSender "test-session")
+        run 10000 messages
 
-        let outbox = messageReceiver ()
-        let receiveMessage = receiveMessage outbox
-        let getMessages () = getMessages outbox
-        
-        let stopWatch = System.Diagnostics.Stopwatch.StartNew()
-        
-        Azure.createQueueListener "test-session"
-        |> ActorModel.dispatch 10000 receiveMessage
-        |> Async.RunSynchronously
-
-        let output = messages |> waitAllMessages getMessages 
-        let numberOfMessages = messages |> List.length
-
-        match stopWatch.ElapsedMilliseconds with
-        | 0L -> printfn "no messages"
-        | elapsed ->  
-            printfn "messages %i in %ims" numberOfMessages elapsed
-            printfn ""
-
-        messages |> hasOrderPreserved output
-
-    [<Property(Timeout=3000000)>]
+    [<Property(Timeout=3000000, MaxTest=1)>]
     let ``All messages respect sequence number order into a sequence with not enought workers`` messages = 
-        messages |> printStats 
-
-        let outbox = messageReceiver ()
-        let receiveMessage = receiveMessage outbox
-        let getMessages () = getMessages outbox
-        let numberOfMessages = messages |> List.length
-
-        let stopWatch = System.Diagnostics.Stopwatch.StartNew()
-        
-        Azure.createQueueListener "test-session" 
-        |> ActorModel.dispatch 100 receiveMessage
-        |> Async.RunSynchronously
-
-        let output = messages |> waitAllMessages getMessages 
-        
-        match stopWatch.ElapsedMilliseconds with
-        | 0L -> printfn "no messages"
-        | elapsed ->  printfn "messages %i in %ims" numberOfMessages elapsed
-
-        messages |> hasOrderPreserved output
+        run 5 messages
