@@ -81,8 +81,9 @@ module PropertiesBasedOnRandomMessages =
                         let messageCount = messages |> List.length
                         id, messageCount)
                 |> List.maxBy(fun (_, count) -> count)
-            printfn "sequenceId : %s with %i messages" sequenceId count
-            group |> Seq.length |> printfn "printfn number of Sequences %i"
+
+            printfn "#%s sessionId with %i messages" sequenceId count
+            group |> Seq.length |> printfn "number of sessions %i"
 
         match messages with
         | [] -> printfn ""
@@ -111,12 +112,12 @@ module PropertiesBasedOnRandomMessages =
             Async.Start(dispatcher, cancelToken |> Async.token)
 
             let output = messages |> waitAllMessages cancelToken getMessages 
-            let numberOfMessages = messages |> List.length
+            let numberOfMessages = messages |> List.length |> float
 
             match stopWatch.ElapsedMilliseconds with
             | 0L -> printfn "no messages"
             | elapsed ->  
-                printfn "messages %i in %ims" numberOfMessages elapsed
+                printfn "messages per second : %f" (numberOfMessages / (float elapsed) * 1000.)
                 printfn ""
 
             output |> hasOrderPreserved input
