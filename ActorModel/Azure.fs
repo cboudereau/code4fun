@@ -14,8 +14,7 @@ let getNumber (message:BrokeredMessage) = message |> getProperty<string> number
 let send (queue:QueueClient) message = message |> queue.Send
 
 let sendAll (queue:QueueClient) messages = 
-    messages 
-    |> List.map (send queue) 
+    for message in messages do send queue message
 
 let acceptMessageSession sessionId (queue:QueueClient) = queue.AcceptMessageSessionAsync(sessionId:string) |> Async.AwaitTask
 
