@@ -6,25 +6,24 @@ type Actor<'a> = MailboxProcessor<'a>
 
 type WorkerMessage = 
     | Process 
-    | Dispose
+    | Dispose of (unit -> unit)
 
 let workerFactory queue job sessionId = 
     Actor.Start <| fun inbox -> 
         let rec listen session = 
             async {
                 try
-                    let! (reply, workerMessage) = inbox.Receive()
+                    let! workerMessage = inbox.Receive()
                     
                     match workerMessage with
                     | Process ->
-                        reply ()
                         //TODO handle session expiration
                         let! message = session |> Azure.receiveMessage
                         do! job message
                         //TODO handle errors
                         do! message |> Azure.completeMessage
                         do! listen session
-                    | Dispose -> 
+                    | Dispose reply -> 
                         //TODO handle session expiration
                         do! session |> Azure.closeSession
                         reply ()
@@ -46,7 +45,7 @@ let actorPool limit factory =
                 |> Seq.map(
                     fun (k, a) -> 
                         async {
-                            do! a.PostAndAsyncReply <| fun channel -> channel.Reply, Dispose
+                            do! a.PostAndAsyncReply <| fun channel -> channel.Reply |> Dispose
                             return k })
                 |> Async.Parallel
 
@@ -108,7 +107,7 @@ let dispatch workerCount job queue =
         async {
             let! message = peekMessage queue
             let! actor = message |> Azure.getSessionId |> getActor
-            do! actor.PostAndAsyncReply <| fun channel -> channel.Reply, Process
+            actor.Post Process
             do! peek queue
         }
 
