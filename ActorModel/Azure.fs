@@ -16,7 +16,17 @@ let send (queue:QueueClient) message = message |> queue.Send
 let sendAll (queue:QueueClient) messages = 
     messages 
     |> List.map (send queue) 
-  
+
+let acceptMessageSession sessionId (queue:QueueClient) = queue.AcceptMessageSessionAsync(sessionId:string) |> Async.AwaitTask
+
+let peek (queue:QueueClient) = queue.PeekAsync() |> Async.AwaitTask
+ 
+let closeSession (messageSession:MessageSession) = messageSession.CloseAsync() |> Async.AwaitTask
+
+let receiveMessage (messageSession:MessageSession) = messageSession.ReceiveAsync() |> Async.AwaitTask
+
+let completeMessage (message:BrokeredMessage) = message.CompleteAsync() |> Async.AwaitTask
+
 let connectionString = CloudConfigurationManager.GetSetting("Microsoft.ServiceBus.ConnectionString")
                  
 let createQueueListener address = 

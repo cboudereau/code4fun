@@ -1,8 +1,6 @@
 ﻿module ActorModel
 
 open Microsoft.FSharp.Control
-open Microsoft.ServiceBus.Messaging;
-open Microsoft.WindowsAzure;
 
 type Actor<'a> = MailboxProcessor<'a>
 
@@ -10,31 +8,33 @@ type WorkerMessage =
     | Process 
     | Dispose
 
-let workerFactory (azureClient:QueueClient) job sessionId = 
+let workerFactory queue job sessionId = 
     Actor.Start <| fun inbox -> 
-        let rec listen (session:MessageSession) = 
+        let rec listen session = 
             async {
                 try
-                    let! (reply, message) = inbox.Receive()
+                    let! (reply, workerMessage) = inbox.Receive()
                     
-                    match message with
+                    match workerMessage with
                     | Process ->
                         reply ()
                         //TODO handle session expiration
-                        let! message = session.ReceiveAsync() |> Async.AwaitTask
+                        let! message = session |> Azure.receiveMessage
                         do! job message
                         //TODO handle errors
-                        do! message.CompleteAsync() |> Async.AwaitTask
+                        do! message |> Azure.completeMessage
                         do! listen session
                     | Dispose -> 
                         //TODO handle session expiration
-                        session.Close()
+                        do! session |> Azure.closeSession
                         reply ()
                         return ()
                 with ex -> printfn "Exception occured in worker --> %A" ex
             }
-        let session = azureClient.AcceptMessageSession(sessionId:string)
-        listen session
+        async{
+            let! session = queue |> Azure.acceptMessageSession sessionId
+            return! listen session
+        }
 
 let actorPool limit factory = 
     let collect actors = 
@@ -77,17 +77,18 @@ let actorPool limit factory =
             }
         listen Map.empty
 
-let workerPool azureClient workerCount job = 
-    job |> workerFactory azureClient |> actorPool workerCount
+let workerPool queue workerCount job = 
+    job |> workerFactory queue |> actorPool workerCount
 
 let dispatch workerCount job queue = 
     let sizedWorkerPool = workerPool queue workerCount job
     let fromWorkerPool sessionId = sizedWorkerPool.PostAndAsyncReply <| fun channel -> (channel.Reply, sessionId)
     
     let rec peek queue = 
-        let rec peekMessage (queue : QueueClient) = 
+        let rec peekMessage queue = 
             async{
-                match queue.Peek() with
+                let! messagePeeked = queue |> Azure.peek
+                match messagePeeked with
                 | null -> 
                     do! Async.Sleep 50
                     return! peekMessage queue
@@ -106,7 +107,7 @@ let dispatch workerCount job queue =
 
         async {
             let! message = peekMessage queue
-            let! actor = message.SessionId |> getActor
+            let! actor = message |> Azure.getSessionId |> getActor
             do! actor.PostAndAsyncReply <| fun channel -> channel.Reply, Process
             do! peek queue
         }
