@@ -6,6 +6,8 @@ Elixir
 
 TODO : https://github.com/c4fsharp/Dojo-Markov-Bot/tree/master/dojo
 
+Done Azure Service bus
+Done Mailbox processing
 Done Powershell type provider
 Done Monads
 Done Computation Expression
