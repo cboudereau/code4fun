@@ -3,7 +3,6 @@ open FsCheck.Xunit
 open ActorModel
 open MessageGen
 open Microsoft.ServiceBus.Messaging
-open Microsoft.WindowsAzure
 
 module Async = 
     open System.Threading
