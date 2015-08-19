@@ -24,6 +24,13 @@ let closeSession (messageSession:MessageSession) = messageSession.CloseAsync() |
 
 let receiveMessage (messageSession:MessageSession) = messageSession.ReceiveAsync() |> Async.AwaitTask
 
+let onReceiveMessage job (messageSession:MessageSession) = 
+    let onMessageOptions = OnMessageOptions()
+    onMessageOptions.AutoRenewTimeout <- System.TimeSpan.FromSeconds(60.)
+    onMessageOptions.AutoComplete <- true
+    let jobTask message = message |> job |> Async.StartAsTask :> System.Threading.Tasks.Task
+    messageSession.OnMessageAsync(System.Func<BrokeredMessage, System.Threading.Tasks.Task>(jobTask), onMessageOptions)
+
 let completeMessage (message:BrokeredMessage) = message.CompleteAsync() |> Async.AwaitTask
 
 let connectionString = CloudConfigurationManager.GetSetting("Microsoft.ServiceBus.ConnectionString")

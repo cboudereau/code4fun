@@ -17,33 +17,29 @@ module PropertiesBasedOnRandomMessages =
         { sessionId:string
           number: string }
 
-    type MessageReceive<'a> = 
-        | Get
+    type MessageReceive<'a, 'b> = 
+        | Get of 'b
         | Post of 'a
 
     let messageReceiver () = 
         Actor.Start <| fun inbox ->
             let rec listen messages =
                 async {
-                    let! (replyChannel, message) = inbox.Receive()
+                    let! message = inbox.Receive()
                     match message with
-                    | Get -> 
+                    | Get replyChannel -> 
                         messages |> List.rev |> replyChannel
                         do! listen messages
                     | Post m -> 
-                        replyChannel messages
                         do! (m :: messages) |> listen
                 }
             listen List.empty
     
-    let getMessages (messageReceiver:Actor<_>)  = messageReceiver.PostAndReply <| fun channel -> channel.Reply, Get
+    let getMessages (messageReceiver:Actor<_>)  = messageReceiver.PostAndReply <| fun channel -> channel.Reply |> Get
 
     let convertMessage (message:BrokeredMessage) = { sessionId = message.SessionId; number = message |> Azure.getNumber }
 
-    let receiveMessage (messageReceiver:Actor<_>) message = 
-        async {
-            let messages = messageReceiver.PostAndAsyncReply <| fun channel -> channel.Reply, (message |> convertMessage |> Post)
-            return! messages |> Async.Ignore }
+    let receiveMessage (messageReceiver:Actor<_>) message = async { return messageReceiver.Post (message |> convertMessage |> Post) }
 
     let hasOrderPreserved input output = 
         let messagesPerSession = input |> List.groupBy(fun m -> m.sessionId) |> Map.ofList
