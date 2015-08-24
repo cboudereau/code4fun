@@ -58,6 +58,7 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="AsyncStateSeq.fsx" />
     <None Include="ProtobufPoc.fsx" />
     <None Include="ActorModel.fsx" />
     <Compile Include="SimplifiedAsyncStateWorkflow.fsx" />
