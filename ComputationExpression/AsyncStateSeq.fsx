@@ -19,33 +19,43 @@
     let state = StateBuilder()
 
 module AsyncState = 
-    type AsyncState<'a, 'b> = Async<State.State<'a, 'b>>
+    open State
+    type AsyncState<'a, 'b> = Async<State<'a, 'b>>
 
     let success x : AsyncState<_, _> = async { return State.success x }
     let failure x : AsyncState<_, _> = async { return State.failure x }
 
-module AsyncStateSeq =  
+    let bind f x = 
+        async {
+            let! x' = x
+            match x' with
+            | Success v -> return! f v
+            | Failure f -> return Failure f 
+        }
+
+    type AsyncStateBuilder() = 
+        member __.Bind(x, f) = x |> bind f
+        member __.Return(x) = success x
+        member __.ReturnFrom(x) = x
     
+    let asyncState = StateBuilder()
+
+module AsyncStateSeq = 
+    open State
     open AsyncState
-        
     type AsyncStateSeq<'a, 'b> = AsyncState<'a, 'b> seq
 
-    let success x = AsyncState.success x |> Seq.singleton
-    let failure x = AsyncState.failure x |> Seq.singleton
+    let loop (f:'a->AsyncState<'b, 'c>) (x:'a seq) = 
+        x 
+        |> Seq.map f
+        |> ignore
 
-    let empty = Seq.empty
-
-    type AsyncStateSeqBuilder() = 
-        member __.Bind((x:AsyncStateSeq<_, _>), (f:_-> AsyncStateSeq<_, _>)) : AsyncStateSeq<_, _> = failwith "not yet implemented" 
-        member __.For(x: seq<_>, (f:_-> AsyncStateSeq<_, _>)) : AsyncStateSeq<_, _> = failwith "not yet implemented"
-        
-        member __.Combine(x1,x2) = x2 |> Seq.append x1
-
-        member __.Yield(x) = success x
-        member __.YieldFrom(x) = x
+    type AsyncPartialSeqBuilder() = 
+        member __.For(x, f) = loop f x
+        member __.Combine(x1, x2)  = Seq.append x1 x2
         member __.Delay(f) = f()
-
-    let state = AsyncStateSeqBuilder()
+    
+    let asyncPartialSeq = AsyncPartialSeqBuilder()
 
 module Sample = 
     open State
@@ -75,65 +85,75 @@ module Sample =
                 | None -> { isSuccess = false } |> State.failure
         }
 
-module Sample2 = 
-    open AsyncStateSeq
+module Monads = 
+    type State<'a, 'b> = 
+        | Success of 'a
+        | Failure of 'b
+    
+    let bindChoice f x = 
+        match x with
+        | Choice1Of3 v | Choice3Of3 v -> f v
+        | Choice2Of3 v -> Choice2Of3 v
 
-    type Contract = ContractName of string
+    let bind f x = 
+        match x with
+        | Success v -> f v
+        | Failure f -> Failure f
 
-    type Price = Amount of decimal
+    let success v = Success v
+    let failure f = Failure f
 
-    let getMap _ = 
-        async {
-            return 
-                [ ContractName "rateCode1", Amount 10m
-                  ContractName "rateCode2", Amount 100m ] |> Map.ofList }
+    type StateList<'a, 'b> = List of State<'a, 'b> seq
 
-    let getContract _: AsyncStateSeq<_, _> = 
-        async {
-            let! map = getMap ()
-            return map |> State.success
-        } |> Seq.singleton
+    let isFailure = function
+        | Success _ -> false
+        | Failure _ -> true
 
-    type Stay = { contract: Contract; amount: Price }
+    let partialBind f (List x) = x |> Seq.map (bind f) |> List
+    let successBind f (List x) = 
+        match x |> Seq.filter isFailure |> Seq.length > 0 with
+        | false -> x |> Seq.map (bind f) |> List
+        | true -> x |> List
 
-    type Booking = { isSuccess:bool; stays : Stay seq }
+    let combine x1 x2 = Seq.append x1 x2 |> List
 
-    let getStay rateCode = 
-        state {
-            let! map = getContract ()
-            yield!
-                match map |> Map.tryFind rateCode with
-                | Some amount -> { contract = rateCode; amount = amount } |> AsyncStateSeq.success
-                | None -> { isSuccess = false; stays = Seq.empty } |> AsyncStateSeq.failure
-        }
+    let successList x = success x |> Seq.singleton |> List
 
-    type BmsBooking = { establishments: string list }
+    type StateBuilder() = 
+        member __.Bind(x, f) = bind f x
+        member __.Return(x) = success x
+        member __.ReturnFrom(x) = x
 
-    let bookings _ = state { yield { establishments = [ "rateCode1"; "rateCode2" ] } }
+    let state = StateBuilder()
 
-    let getBookings _ = 
-        state {
-            let! booking = bookings ()
-            for b in  booking.establishments do
-                let! stays = b |> ContractName |> getStay
-                yield { isSuccess = true; stays = stays }
-        }
+    type FullStatesBuilder() = 
+        member __.For(x, f) = successBind f x
+        member __.Combine(List x1, List x2) = combine x1 x2
+        member __.Yield(x) = successList x
+        member __.YieldFrom(x) = x
+        member __.Delay(f) = f()
 
-    let getBookingsRec bookings =    
-        let rec getBookingRec bookings = 
-            state {
-                match bookings with
-                | head :: tail -> 
-                    let! stays = head |> ContractName |> getStay
-                    yield { isSuccess = true; stays = stays }
-                    yield! tail |> getBookingRec
-                | [] -> yield! AsyncStateSeq.empty
-            } 
-        bookings |> Seq.toList |> getBookingRec
+    let fullStates = FullStatesBuilder()
 
-    let getBookings2 _ =
-        state {
-            let! booking = bookings ()
-            let bs = booking.establishments
-            yield! bs |> getBookingsRec
-        }
+    type PartialStatesBuilder() =
+        member __.For(x, f) = partialBind f x
+        member __.Combine(x1, x2) = combine x1 x2
+        member __.Yield(x) = successList x
+        member __.YieldFrom(x) = x
+        member __.Delay(f) = f()
+
+    let partialStates = PartialStatesBuilder()
+
+    type AllPartialStatesBuilder() = 
+        member __.Bind(x, f) =  bindChoice f x
+        member __.Return(x) = 
+        member __.ReturnFrom(x) = x
+
+        member __.For(x, f) = successBind f x
+        member __.Combine(List x1, List x2) = combine x1 x2
+        member __.Yield(x) = successList x
+        member __.YieldFrom(x) = x
+        member __.Delay(f) = f()
+
+    let sample = AllPartialStatesBuilder() 
+
