@@ -35,7 +35,14 @@ module AsyncState =
     type AsyncStateBuilder() = 
         member __.Bind(x, f) = bind f x
         member __.Return(x) = success x
+        member __.For(x, f) = x |> Seq.map f
+        member __.Yield(x) = x |> success
+        member __.YieldFrom(x) = x
+        member __.Combine(x1, x2) = 
+            seq { yield x1; yield success x2 }
         member __.ReturnFrom(x) = x
+        member __.Delay(f) = f()
+        member __.Zero() = Seq.empty
 
     let asyncState = AsyncStateBuilder()
 
@@ -46,7 +53,35 @@ module AsyncStateSample =
 
     let print message = asyncState { let! m = message in return printfn "%A" m }
 
-    getSourceMessage false |> print |> Async.RunSynchronously
+    getSourceMessage true |> print |> Async.RunSynchronously
+
+    let getStay _ = asyncState { return "stay" |> Seq.singleton }
+    let getRoom _ = 
+        let rates = ["1";"2"] |> Seq.map success
+        asyncState { 
+            for v in rates do    
+                yield v
+        }
+
+    let getBookings bookings = 
+        
+        let rec getBookings bookings = 
+            asyncState {
+                match bookings with
+                | h :: tail -> 
+                    yield h
+                    yield! getBookings tail
+                | [] -> ()
+            }
+        getBookings bookings
+
+    let parse _ =
+        asyncState{
+            for b in getBookings ["1";"2"] do
+                for r in b |> getRoom do
+                    yield! r
+        }
+        
 
 module StateSample = 
     open State
@@ -55,4 +90,5 @@ module StateSample =
     let print message = state{ let! m = message in return printfn "%A" m }
 
     getSourceMessage false |> print
+
 
