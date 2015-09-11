@@ -58,6 +58,7 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="DrFrankenfunctor.fsx" />
     <None Include="AsyncStateSeq.fsx" />
     <None Include="AsyncState.fsx" />
     <None Include="ProtobufPoc.fsx" />
