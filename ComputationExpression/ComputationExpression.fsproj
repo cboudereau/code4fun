@@ -59,6 +59,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="DrFrankenfunctor.fsx" />
+    <None Include="DrFrankenfunctor_all.fsx" />
+    <None Include="foldCombine.fsx" />
     <None Include="AsyncStateSeq.fsx" />
     <None Include="AsyncState.fsx" />
     <None Include="ProtobufPoc.fsx" />
