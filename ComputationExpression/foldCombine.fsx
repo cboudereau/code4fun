@@ -1,4 +1,16 @@
-﻿type Xml = 
+﻿
+[<Literal>] let xml = "<root></root><!-- <![CDATA[ <previous></previous> ]]> -->" 
+
+#r "System.Xml.Linq"
+
+open System.Xml.Linq
+
+let parsed = System.Xml.Linq.XDocument.Parse(xml)
+
+let comments = System.Linq.Enumerable.OfType<XComment>(parsed.DescendantNodes())
+let comment = comments |> Seq.last
+
+type Xml = 
     | Zero
     | Content of string
     with
@@ -6,7 +18,9 @@
             match first, second with
             | Zero, _ -> second
             | _, Zero -> first
-            | Content first, Content second -> Content (f first second)
+            | Content first, Content second -> 
+                printfn "fst: %A; snd %A" first second
+                Content (f first second)
 
 let xmls = [ "1"; "2"; "3" ]
 

@@ -115,3 +115,131 @@ let upperRightArmM = makeLiveRightUpperArm deadRightUpperArm
 
 let armSurgeryM  = map2M armSurgery 
 let rightArmM = armSurgeryM lowerRightArmM upperRightArmM 
+
+type DeadBrain = DeadBrain of Label 
+type Skull = Skull of Label 
+
+type LiveBrain = LiveBrain of Label * VitalForce
+
+type LiveHead = {
+    brain : LiveBrain
+    skull : Skull // not live
+    }
+
+let headSurgery brain skull =
+    {brain=brain; skull=skull}
+
+let returnM x = 
+    let becomeAlive vitalForce = 
+        x, vitalForce 
+    M becomeAlive
+
+let makeLiveBrain (DeadBrain label) = 
+    let becomeAlive vitalForce = 
+        let oneUnit, remainingVitalForce = getVitalForce vitalForce 
+        let liveBrain = LiveBrain (label,oneUnit)
+        liveBrain, remainingVitalForce    
+    M becomeAlive
+
+let deadBrain = DeadBrain "Abby Normal"
+let skull = Skull "Yorick"
+
+let liveBrainM = makeLiveBrain deadBrain
+let skullM = returnM skull
+
+let headSurgeryM = map2M headSurgery
+let headM = headSurgeryM liveBrainM skullM
+
+type DeadHeart = DeadHeart of Label 
+type LiveHeart = LiveHeart of Label * VitalForce
+
+type BeatingHeart = BeatingHeart of LiveHeart * VitalForce
+
+let makeLiveHeart (DeadHeart label) = 
+    let becomeAlive vitalForce = 
+        let oneUnit, remainingVitalForce = getVitalForce vitalForce 
+        let liveHeart = LiveHeart (label,oneUnit)
+        liveHeart, remainingVitalForce    
+    M becomeAlive
+
+let makeBeatingHeart liveHeart = 
+
+    let becomeAlive vitalForce = 
+        let oneUnit, remainingVitalForce = getVitalForce vitalForce 
+        let beatingHeart = BeatingHeart (liveHeart, oneUnit)
+        beatingHeart, remainingVitalForce    
+    M becomeAlive
+
+let makeBeatingHeartFromLiveHeartM liveHeartM = 
+
+    let becomeAlive vitalForce = 
+        // extract the liveHeart from liveHeartM 
+        let liveHeart, remainingVitalForce = runM liveHeartM vitalForce 
+
+        // use the liveHeart to create a beatingHeartM
+        let beatingHeartM = makeBeatingHeart liveHeart
+
+        // run beatingHeartM to get a beatingHeart
+        let beatingHeart, remainingVitalForce2 = runM beatingHeartM remainingVitalForce 
+
+        // return a beatingHeart and remaining vital force    
+        beatingHeart, remainingVitalForce2    
+
+    // wrap the inner function and return it        
+    M becomeAlive
+
+let bindM f bodyPartM = 
+    let becomeAlive vitalForce = 
+        let bodyPart, remainingVitalForce = runM bodyPartM vitalForce 
+        runM (f bodyPart) remainingVitalForce 
+    M becomeAlive
+
+let beatingHeartM = 
+   DeadHeart "Anne"
+   |> makeLiveHeart 
+   |> bindM makeBeatingHeart
+
+
+type LiveBody = {
+    leftLeg: LiveLeftLeg
+    rightLeg : LiveLeftLeg
+    leftArm : LiveLeftArm
+    rightArm : LiveRightArm
+    head : LiveHead
+    heart : BeatingHeart
+    }
+
+let applyM mf mx =
+    let becomeAlive vitalForce = 
+        let f,remainingVitalForce = runM mf vitalForce 
+        let x,remainingVitalForce2 = runM mx remainingVitalForce  
+        let y = f x
+        y, remainingVitalForce2    
+    M becomeAlive 
+
+let createBody leftLeg rightLeg leftArm rightArm head beatingHeart =
+    {
+    leftLeg = leftLeg
+    rightLeg = rightLeg
+    leftArm = leftArm
+    rightArm = rightArm
+    head = head
+    heart = beatingHeart 
+    }
+
+let rightLegM = leftLegM
+
+let (<*>) = applyM
+
+let (<!>) = mapM
+
+let bodyM = 
+    createBody 
+    <!> leftLegM
+    <*> rightLegM
+    <*> leftArmM
+    <*> rightArmM
+    <*> headM 
+    <*> beatingHeartM
+
+let liveBody, remainingFromBody = runM bodyM vf
