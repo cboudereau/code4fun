@@ -5,6 +5,10 @@ type DateTime = System.DateTime
 type Period = 
     { startDate : DateTime
       endDate : DateTime }
+    override this.ToString() = 
+        let toString (date:DateTime) = date.ToString("yyyy/MM/dd")
+        sprintf "[%s; %s[" (this.startDate |> toString) (this.endDate |> toString)
+
     static member sort f p1 p2 = 
         if p1.startDate <= p2.startDate then f p1 p2
         else f p2 p1
@@ -22,7 +26,21 @@ type Period =
 type Temporary<'a> = 
     { period : Period
       value : 'a }
+    override this.ToString() = sprintf "%O = %O" this.period this.value
 
+let view period temporaries = 
+    let intersect t = 
+        match Period.intersect t.period period with
+        | Some i -> Some { period=i; value= t.value }
+        | _ -> None
+    
+    let folder state t =
+        match intersect t with
+        | Some i -> seq { yield! state; yield i }
+        | None -> state
+
+    temporaries |> Seq.fold folder Seq.empty
+    
 let (=>) startDate endDate = 
     { startDate = startDate
       endDate = endDate }
@@ -35,51 +53,37 @@ let d2015 = utcDate 2015
 let jan15 = d2015 1
 let feb15 = d2015 2
 
-let defaultToNone temporaries = 
-    let minStartDate = temporaries |> Seq.map(fun t -> t.period.startDate) |> Seq.min
-    let maxEndDate = temporaries |> Seq.map(fun t -> t.period.endDate) |> Seq.max
-     
-    seq{
-        yield DateTime.MinValue => minStartDate := None
-        yield! temporaries |> Seq.map(fun t -> t.period := Some t.value)
-        yield maxEndDate => DateTime.MaxValue := None
-    }
+let sort temporaries = temporaries |> Seq.sortBy (fun t -> t.period.startDate)
 
-let map f temporaries = 
-    temporaries
-    |> Seq.map(fun t -> t.period := f t.value)
-    |> defaultToNone
-
-let combine tv tf = 
-    match Period.intersect tf.period tv.period, tf.value, tv.value with
-    | Some period, Some f, Some v -> { period=period; value= f v |> Some }
-    | _ -> { period=tv.period; value=None }
-
-let combineN tfs tv = tfs |> List.map (combine tv)
-
-let apply (first:Temporary<('a->'b) option> seq) second = 
-    let sort temporaries = temporaries |> Seq.sortBy(fun t -> t.period.startDate) 
-    let temporariesf = first |> sort |> Seq.toList
-    let temporariesv = second |> sort |> defaultToNone |> Seq.toList
+let defaultToNone temporaries = ()
     
-    temporariesv |> List.collect (combineN temporariesf)
+    
+let map f temporaries = temporaries |> Seq.map(fun t -> t.period := f t.value)
+
+let apply tfs tvs = 
+    let sortedv = tvs |> sort
+    let apply tf = 
+        sortedv
+        |> view tf.period
+        |> Seq.map(fun t -> { period=t.period; value=tf.value t.value })
+    
+    tfs 
+    |> sort
+    |> Seq.collect apply
 
 let (<!>) = map
 let (<*>) = apply
-
-type M<'a> = M of (Period -> 'a option)
-
-
 
 let map2 f temporaries = 
     temporaries
     |> Seq.map(fun t -> t.period := f t.value)
 
+let print source = source |> Seq.iter (printfn "%A")
+
 let availability close closeToDeparture price = (close, closeToDeparture, price)
 
-let result = 
-    availability
-    <!> [ jan15 2 => jan15 20 := false ]
-    <*> [ jan15 1 => jan15 10 := true ]
-    <*> [ jan15 20 => jan15 22 := 120m ]
-result |> List.map(fun t -> t.value)
+availability
+<!> [ jan15 2 => jan15 5 := false; jan15 5 => jan15 20 := true ]
+<*> [ jan15 1 => jan15 2 := true; jan15 2 => jan15 19 := false ]
+<*> [ jan15 2 => jan15 22 := 120m ]
+|> print
