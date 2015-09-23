@@ -80,7 +80,9 @@
     <None Include="packages.config" />
     <None Include="excel.xlsx" />
     <Content Include="personSample.xml" />
+    <None Include="ApplicativeFunctor.fsx" />
     <None Include="Temporal.fsx" />
+    <None Include="Temporal2.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Excel">
