@@ -11,25 +11,45 @@ type Period =
 
     static member always = { startDate=DateTime.MinValue; endDate=DateTime.MaxValue }
 
+    static member empty = { startDate = DateTime.MinValue; endDate = DateTime.MinValue }
+
     static member sort f p1 p2 = 
         if p1.startDate <= p2.startDate then f p1 p2
         else f p2 p1
 
     static member intersect p1 p2 = 
         let intersect p1 p2 = 
-            if p1.endDate > p2.startDate 
+            if p1.endDate >= p2.startDate 
             then 
-             { startDate = max p1.startDate p2.startDate
-               endDate = min p1.endDate p2.endDate }
-             |> Some
+                { startDate = max p1.startDate p2.startDate
+                  endDate = min p1.endDate p2.endDate }
+                |> Some
             else None
         Period.sort intersect p1 p2
+
+    static member union p1 p2 = 
+        let union p1 p2 = 
+            if p1.endDate >= p2.startDate
+            then 
+                { startDate = min p1.startDate p2.startDate
+                  endDate = max p1.endDate p2.endDate }
+                |> Some
+            else None
+        Period.sort union p1 p2
 
 type Temporary<'a> = 
     { period : Period
       value : 'a }
     override this.ToString() = sprintf "%O = %O" this.period this.value
 
+module Temporary =
+    let empty<'a> = { period=Period.empty; value=Option<'a>.None }
+    let union t1 t2 = 
+        match t1.value = t2.value, Period.union t1.period t2.period with
+        | false, _ | _, None -> None
+        | true, Some p -> Some { period=p; value=t1.value }
+
+open Temporary
 let view period temporaries = 
     let intersect t = 
         match Period.intersect t.period period with
@@ -52,26 +72,28 @@ let (:=) period value = { period=period; value=value }
 let sort temporaries = temporaries |> Seq.sortBy (fun t -> t.period.startDate)
 
 let defaultToNone temporaries = 
-    let empty = { startDate = DateTime.MinValue; endDate = DateTime.MinValue }
-
-    let folder state t = 
-        let result =
-            seq{
-                let tO = { period= t.period; value= Some t.value }
-                match Period.intersect state t.period with
-                | Some _ -> yield tO 
+    let toOption t = { period=t.period; value=Some t.value }
+    let rec defaultToNone temporaries = 
+        seq{
+            match temporaries with
+            | [] -> yield! Seq.empty
+            | [t] -> yield { period=t.period;value=Some t.value }
+            | t1::t2::tail ->
+                match Period.intersect t1.period t2.period with
+                | Some _ -> yield t1 |> toOption; yield! defaultToNone (t2::tail)
                 | None -> 
-                    yield { period= {startDate= state.endDate; endDate=t.period.startDate }; value= None }
-                    yield tO
-            }
-        result, t.period
-    let it r = r
-    let (result,last) = temporaries |> sort |> Seq.mapFold folder empty
-    seq {
-        yield! result |> Seq.collect it
-        if last.endDate <> Period.always.endDate 
-        then yield { period= {startDate=last.endDate; endDate=Period.always.endDate}; value= None }
-    }
+                    yield t1 |> toOption
+                    yield { period={ startDate=t1.period.endDate; endDate=t2.period.startDate }; value = None }
+                    yield! defaultToNone (t2::tail)
+        }
+
+    let toAlways l = 
+        seq{
+            yield {period={startDate=DateTime.MinValue; endDate=DateTime.MinValue};value=None }
+            yield! (l |> sort |> Seq.map toOption)
+            yield {period={startDate=DateTime.MaxValue; endDate=DateTime.MaxValue};value=None } 
+        }
+    temporaries |> toAlways |> Seq.toList |> defaultToNone
     
 let map f temporaries = temporaries |> defaultToNone |> Seq.map(fun t -> t.period := f t.value)
 
@@ -84,6 +106,19 @@ let apply tfs tvs =
     
     tfs 
     |> Seq.collect apply
+
+let merge temporaries = 
+    let rec merge temporaries = 
+        seq{
+            match temporaries with
+            | t1::t2::tail ->
+                match Temporary.union t1 t2 with
+                | Some u -> yield! merge (u::tail)
+                | None -> yield t1; yield! merge (t2::tail)
+            | [] -> yield! Seq.empty
+            | [t] -> yield t
+        }
+    temporaries |> Seq.toList |> merge
 
 let (<!>) = map
 let (<*>) = apply
@@ -100,7 +135,6 @@ let feb15 = d2015 2
 let print source = source |> Seq.iter (printfn "%O")
 
 //defaultToNone
-
 [ jan15 10 => jan15 20 := "Hello"
   jan15 22 => jan15 23 := "Toto" ] 
 |> defaultToNone 
@@ -112,4 +146,15 @@ availability
 <!> [ jan15 2 => jan15 5 := false; jan15 5 => jan15 20 := true ]
 <*> [ jan15 2 => jan15 19 := false; jan15 1 => jan15 2 := true ]
 <*> [ jan15 2 => jan15 22 := 120m ]
+|> print
+
+
+//merge
+[ jan15 10 => jan15 20 := "Hello"
+  jan15 12 => jan15 14 := "Hello"
+  jan15 23 => jan15 24 := "Tutu"
+  jan15 24 => jan15 26 := "Tutu"
+  jan15 26 => jan15 28 := "Tutu" ] 
+|> defaultToNone
+//|> merge
 |> print
