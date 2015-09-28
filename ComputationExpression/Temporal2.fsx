@@ -8,10 +8,8 @@ type Period =
     override this.ToString() = 
         let toString (date:DateTime) = date.ToString("yyyy/MM/dd")
         sprintf "[%s; %s[" (this.startDate |> toString) (this.endDate |> toString)
-
-    static member always = { startDate=DateTime.MinValue; endDate=DateTime.MaxValue }
-
-    static member empty = { startDate = DateTime.MinValue; endDate = DateTime.MinValue }
+    
+    static member duration p = p.endDate - p.startDate
 
     static member sort f p1 p2 = 
         if p1.startDate <= p2.startDate then f p1 p2
@@ -42,14 +40,6 @@ type Temporary<'a> =
       value : 'a }
     override this.ToString() = sprintf "%O = %O" this.period this.value
 
-module Temporary =
-    let empty<'a> = { period=Period.empty; value=Option<'a>.None }
-    let union t1 t2 = 
-        match t1.value = t2.value, Period.union t1.period t2.period with
-        | false, _ | _, None -> None
-        | true, Some p -> Some { period=p; value=t1.value }
-
-open Temporary
 let view period temporaries = 
     let intersect t = 
         match Period.intersect t.period period with
@@ -71,7 +61,17 @@ let (:=) period value = { period=period; value=value }
 
 let sort temporaries = temporaries |> Seq.sortBy (fun t -> t.period.startDate)
 
-let (|Intersect|_|) = Period.intersect
+let split length temporaries = 
+    let rec split t = 
+        seq{
+            if t.period |> Period.duration <= length then yield t
+            else
+                let next = t.period.startDate + length
+                yield { t with period = { t.period with endDate = next } }
+                yield! split { t with period = { t.period with startDate = next } }
+        }
+    temporaries
+    |> Seq.collect split
 
 let defaultToNone temporaries = 
     let option t = { period=t.period; value=Some t.value }    
@@ -98,11 +98,17 @@ let defaultToNone temporaries =
     |> Seq.collect it
 
 let merge temporaries = 
+
+    let union t1 t2 = 
+        match t1.value = t2.value, Period.union t1.period t2.period with
+        | false, _ | _, None -> None
+        | true, Some p -> Some { period=p; value=t1.value }
+
     let rec merge temporaries = 
         seq{
             match temporaries with
             | t1::t2::tail ->
-                match Temporary.union t1 t2 with
+                match union t1 t2 with
                 | Some u -> yield! merge (u::tail)
                 | None -> yield t1; yield! merge (t2::tail)
             | [] -> yield! Seq.empty
@@ -163,6 +169,12 @@ let print source = source |> Seq.iter (printfn "%O")
 |> defaultToNone
 |> merge
 |> print
+
+//split
+[ jan15 10 => jan15 22 := "Hello" ]
+|> split (TimeSpan.FromDays(5.))
+|> print
+
 
 let availability close closeToDeparture price = (close, closeToDeparture, price)
 
