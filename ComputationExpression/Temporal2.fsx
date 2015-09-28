@@ -71,41 +71,31 @@ let (:=) period value = { period=period; value=value }
 
 let sort temporaries = temporaries |> Seq.sortBy (fun t -> t.period.startDate)
 
+let (|Intersect|_|) = Period.intersect
+
 let defaultToNone temporaries = 
-    let toOption t = { period=t.period; value=Some t.value }
-    let rec defaultToNone temporaries = 
-        seq{
-            match temporaries with
-            | [] -> yield! Seq.empty
-            | [t] -> yield { period=t.period;value=Some t.value }
-            | t1::t2::tail ->
-                match Period.intersect t1.period t2.period with
-                | Some _ -> yield t1 |> toOption; yield! defaultToNone (t2::tail)
+    let option t = { period=t.period; value=Some t.value }    
+    
+    let it i = i
+
+    let folder state current = 
+        let defaulted = 
+            match state with
+            | None -> option current |> Seq.singleton
+            | Some previous -> 
+                match Period.intersect previous.period current.period  with
+                | Some _ -> seq { yield current |> option; }
                 | None -> 
-                    yield t1 |> toOption
-                    yield { period={ startDate=t1.period.endDate; endDate=t2.period.startDate }; value = None }
-                    yield! defaultToNone (t2::tail)
-        }
-
-    let toAlways l = 
-        seq{
-            yield {period={startDate=DateTime.MinValue; endDate=DateTime.MinValue};value=None }
-            yield! (l |> sort |> Seq.map toOption)
-            yield {period={startDate=DateTime.MaxValue; endDate=DateTime.MaxValue};value=None } 
-        }
-    temporaries |> toAlways |> Seq.toList |> defaultToNone
+                    seq{
+                        yield { period={startDate=previous.period.endDate; endDate=current.period.startDate};value=None }
+                        yield option current
+                    }
+        defaulted, Some current
     
-let map f temporaries = temporaries |> defaultToNone |> Seq.map(fun t -> t.period := f t.value)
-
-let apply tfs tvs = 
-    let sortedv = tvs |> defaultToNone
-    let apply tf = 
-        sortedv
-        |> view tf.period
-        |> Seq.map(fun t -> { period=t.period; value=tf.value t.value })
-    
-    tfs 
-    |> Seq.collect apply
+    temporaries
+    |> Seq.mapFold folder None
+    |> fst
+    |> Seq.collect it
 
 let merge temporaries = 
     let rec merge temporaries = 
@@ -120,11 +110,25 @@ let merge temporaries =
         }
     temporaries |> Seq.toList |> merge
 
+let map f temporaries = 
+    temporaries 
+    |> sort
+    |> defaultToNone 
+    |> merge
+    |> Seq.map(fun t -> t.period := f t.value)
+
+let apply tfs tvs = 
+    let sortedv = tvs |> sort |> defaultToNone |> merge
+    let apply tf = 
+        sortedv
+        |> view tf.period
+        |> Seq.map(fun t -> { period=t.period; value=tf.value t.value })
+    
+    tfs 
+    |> Seq.collect apply
+
 let (<!>) = map
 let (<*>) = apply
-
-
-
 
 //Test
 let utcDate y m d = DateTime(y, m, d, 0, 0, 0, System.DateTimeKind.Utc)
@@ -135,26 +139,49 @@ let feb15 = d2015 2
 let print source = source |> Seq.iter (printfn "%O")
 
 //defaultToNone
-[ jan15 10 => jan15 20 := "Hello"
-  jan15 22 => jan15 23 := "Toto" ] 
-|> defaultToNone 
-|> print
-
-let availability close closeToDeparture price = (close, closeToDeparture, price)
-
-availability
-<!> [ jan15 2 => jan15 5 := false; jan15 5 => jan15 20 := true ]
-<*> [ jan15 2 => jan15 19 := false; jan15 1 => jan15 2 := true ]
-<*> [ jan15 2 => jan15 22 := 120m ]
-|> print
-
+//[ jan15 10 => jan15 20 := "Hello"
+//  jan15 22 => jan15 23 := "Toto" ] 
+//|> defaultToNone 
+//|> print
 
 //merge
 [ jan15 10 => jan15 20 := "Hello"
   jan15 12 => jan15 14 := "Hello"
   jan15 23 => jan15 24 := "Tutu"
-  jan15 24 => jan15 26 := "Tutu"
+  jan15 24 => jan15 25 := "Tutu"
+  jan15 26 => jan15 28 := "Tutu" ] 
+//|> defaultToNone
+|> merge
+|> print
+
+//merge with defaultToNone (without overlap)
+[ jan15 10 => jan15 12 := "Hello"
+  jan15 12 => jan15 14 := "Hello"
+  jan15 23 => jan15 24 := "Tutu"
+  jan15 24 => jan15 25 := "Tutu"
   jan15 26 => jan15 28 := "Tutu" ] 
 |> defaultToNone
-//|> merge
+|> merge
 |> print
+
+let availability close closeToDeparture price = (close, closeToDeparture, price)
+
+let contiguousSample = 
+    availability
+    <!> [ jan15 2 => jan15 5 := false; jan15 5 => jan15 20 := true ]
+    <*> [ jan15 2 => jan15 19 := false; jan15 1 => jan15 2 := true ]
+    <*> [ jan15 2 => jan15 22 := 120m ]
+
+contiguousSample |> print
+
+let mergedSample = 
+    availability
+    <!> [ jan15 2 => jan15 5 := false
+          jan15 5 => jan15 7 := true
+          jan15 7 => jan15 20 := true ]
+    <*> [ jan15 2 => jan15 19 := false; jan15 1 => jan15 2 := true ]
+    <*> [ jan15 2 => jan15 22 := 120m ]
+
+mergedSample |> print
+
+contiguousSample |> Seq.toList = (mergedSample |> Seq.toList)
