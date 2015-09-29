@@ -56,6 +56,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <None Include="Game.raw" />
+    <None Include="Dojo20150929.fsx" />
     <None Include="Dojo20150924.fsx" />
     <None Include="Sokoban.fsx" />
     <Compile Include="TradingCardGame.fsx" />

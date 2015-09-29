@@ -48,7 +48,12 @@ let view period temporaries =
     
     let folder state t =
         match intersect t with
-        | Some i -> seq { yield! state; yield i }
+        | Some i -> 
+            seq { 
+                yield! state
+                if i.period.startDate > t.period.startDate
+                then 
+                yield i }
         | None -> state
 
     temporaries |> Seq.fold folder Seq.empty
@@ -144,12 +149,6 @@ let feb15 = d2015 2
 
 let print source = source |> Seq.iter (printfn "%O")
 
-//defaultToNone
-//[ jan15 10 => jan15 20 := "Hello"
-//  jan15 22 => jan15 23 := "Toto" ] 
-//|> defaultToNone 
-//|> print
-
 //merge
 [ jan15 10 => jan15 20 := "Hello"
   jan15 12 => jan15 14 := "Hello"
@@ -197,3 +196,16 @@ let mergedSample =
 mergedSample |> print
 
 contiguousSample |> Seq.toList = (mergedSample |> Seq.toList)
+
+
+availability
+<!> [ jan15 4 => jan15 5 := false; jan15 5 => jan15 20 := true ]
+<*> [ jan15 2 => jan15 19 := false; jan15 19 => jan15 23 := true ]
+<*> [ jan15 1 => jan15 22 := 120m ]
+|> print
+
+//defaultToNone
+[ jan15 10 => jan15 20 := "Hello"
+  jan15 22 => jan15 23 := "Toto" ] 
+|> defaultToNone 
+|> print
