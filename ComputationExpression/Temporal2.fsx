@@ -115,30 +115,6 @@ let defaultToNone temporaries =
             then yield { period={ startDate=last.period.endDate; endDate=DateTime.MaxValue }; value=None }
         }
 
-let defaultToNone_old temporaries = 
-    let option t = { period=t.period; value=Some t.value }    
-    
-    let it i = i
-
-    let folder state current = 
-        let defaulted = 
-            match state with
-            | None -> option current |> Seq.singleton
-            | Some previous -> 
-                match Period.intersect previous.period current.period  with
-                | Some _ -> seq { yield current |> option; }
-                | None -> 
-                    seq{
-                        yield { period={startDate=previous.period.endDate; endDate=current.period.startDate};value=None }
-                        yield option current
-                    }
-        defaulted, Some current
-    
-    temporaries
-    |> Seq.mapFold folder None
-    |> fst
-    |> Seq.collect it
-
 let merge temporaries = 
 
     let union t1 t2 = 
@@ -168,6 +144,11 @@ let map f temporaries =
 let apply tfs tvs = 
     let sortedv = tvs |> sort |> defaultToNone |> merge
     
+    let tryApply f v = 
+        match f, v with
+        | Some f, Some v -> Some (f v)
+        | _ -> None
+        
     let apply tf = 
         sortedv
         |> view tf.period
