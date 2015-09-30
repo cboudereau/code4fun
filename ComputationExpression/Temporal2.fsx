@@ -105,7 +105,7 @@ let defaultToNone temporaries =
             let last = temporaries |> Seq.last
 
             if head.period.startDate <> DateTime.MinValue 
-            then yield { period={ startDate=DateTime.MinValue; endDate=head.period.endDate }; value=None }
+            then yield { period={ startDate=DateTime.MinValue; endDate=head.period.startDate }; value=None }
             yield! 
                     temporaries
                     |> Seq.mapFold folder None
@@ -242,7 +242,11 @@ contiguousSample |> Seq.toList = (mergedSample |> Seq.toList)
 |> defaultToNone 
 |> print
 
-
+//only map
+let price p = p
+price
+<!> [ jan15 4 => jan15 5 := 150m; jan15 5 => jan15 20 := 165m ] 
+|> print
 
 //map and apply
 availability
