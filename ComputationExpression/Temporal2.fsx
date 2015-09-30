@@ -9,6 +9,7 @@ type Period =
         let toString (date:DateTime) = date.ToString("yyyy/MM/dd")
         sprintf "[%s; %s[" (this.startDate |> toString) (this.endDate |> toString)
     
+    static member always = { startDate=DateTime.MinValue; endDate=DateTime.MaxValue }
     static member duration p = p.endDate - p.startDate
 
     static member sort f p1 p2 = 
@@ -52,8 +53,7 @@ let view period temporaries =
             seq { 
                 yield! state
                 if i.period.startDate > t.period.startDate
-                then 
-                yield i }
+                then yield i }
         | None -> state
 
     temporaries |> Seq.fold folder Seq.empty
@@ -79,6 +79,43 @@ let split length temporaries =
     |> Seq.collect split
 
 let defaultToNone temporaries = 
+    let it i = i
+
+    let folder state current = 
+        let defaulted = 
+            match state with
+            | None -> current |> Seq.singleton
+            | Some previous -> 
+                match Period.intersect previous.period current.period  with
+                | Some _ -> seq { yield current }
+                | None -> 
+                    seq{
+                        yield { period={startDate=previous.period.endDate; endDate=current.period.startDate};value=None }
+                        yield current
+                    }
+        defaulted, Some current
+
+    let option t = { period=t.period; value = Some t.value }
+
+    match temporaries |> Seq.map option |> Seq.toList with
+    | [] -> Seq.empty
+    | temporaries -> 
+        seq{
+            let head = temporaries |> Seq.head
+            let last = temporaries |> Seq.last
+
+            if head.period.startDate <> DateTime.MinValue 
+            then yield { period={ startDate=DateTime.MinValue; endDate=head.period.endDate }; value=None }
+            yield! 
+                    temporaries
+                    |> Seq.mapFold folder None
+                    |> fst
+                    |> Seq.collect it
+            if last.period.endDate <> DateTime.MaxValue
+            then yield { period={ startDate=last.period.endDate; endDate=DateTime.MaxValue }; value=None }
+        }
+
+let defaultToNone_old temporaries = 
     let option t = { period=t.period; value=Some t.value }    
     
     let it i = i
@@ -130,9 +167,11 @@ let map f temporaries =
 
 let apply tfs tvs = 
     let sortedv = tvs |> sort |> defaultToNone |> merge
+    
     let apply tf = 
         sortedv
         |> view tf.period
+//        |> view Period.always
         |> Seq.map(fun t -> { period=t.period; value=tf.value t.value })
     
     tfs 
@@ -197,15 +236,20 @@ mergedSample |> print
 
 contiguousSample |> Seq.toList = (mergedSample |> Seq.toList)
 
-
-availability
-<!> [ jan15 4 => jan15 5 := false; jan15 5 => jan15 20 := true ]
-<*> [ jan15 2 => jan15 19 := false; jan15 19 => jan15 23 := true ]
-<*> [ jan15 1 => jan15 22 := 120m ]
-|> print
-
 //defaultToNone
 [ jan15 10 => jan15 20 := "Hello"
   jan15 22 => jan15 23 := "Toto" ] 
 |> defaultToNone 
+|> print
+
+
+
+//map and apply
+availability
+<!> [ jan15 4 => jan15 5 := false; jan15 5 => jan15 20 := true ]
+<*> [ jan15 2 => jan15 15 := false
+      jan15 15 => jan15 16 := true
+      jan15 16 => jan15 18 := false
+      jan15 18 => jan15 23 := true ]
+<*> [ jan15 1 => jan15 22 := 120m ]
 |> print
