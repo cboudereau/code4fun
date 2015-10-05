@@ -41,14 +41,17 @@ type Temporary<'a> =
       value : 'a }
     override this.ToString() = sprintf "%O = %O" this.period this.value
 
+//Here rewrite the view function in order to get the full period
+//Consider temporaries to full period (ie defaulted to None)
 let view period temporaries = 
-    let intersect t = 
+    
+    let intersect period t = 
         match Period.intersect t.period period with
         | Some i -> Some { period=i; value= t.value }
         | _ -> None
     
     let folder state t =
-        match intersect t with
+        match intersect period t with
         | Some i -> 
             seq { 
                 yield! state
@@ -56,7 +59,9 @@ let view period temporaries =
                 then yield i }
         | None -> state
 
-    temporaries |> Seq.fold folder Seq.empty
+    //Here use contiguous in order to have fullperiod
+    temporaries 
+    |> Seq.fold folder Seq.empty
 
 let (=>) startDate endDate = 
     { startDate = startDate
@@ -142,16 +147,35 @@ let merge temporaries =
 let map f temporaries = 
     temporaries 
     |> sort
-    |> defaultToNone 
     |> merge
-    |> Seq.map(fun t -> t.period := f t.value)
+    |> defaultToNone 
+    |> Seq.map(fun t -> t.period := Some (f t.value))
 
 let apply tfs tvs = 
     let sortedv = tvs |> sort |> defaultToNone |> merge
 
     let apply tf = 
+        let intersect tv = 
+            match Period.intersect tf.period tv.period, tf.value with
+            | Some i, Some f -> {period=i; value = Some (f tv.value)} |> Seq.singleton
+            | _ -> Seq.empty
+
         sortedv
-        |> view tf.period
+        |> Seq.collect intersect
+
+    tfs
+    |> Seq.collect apply
+    |> defaultToNoneO
+        
+
+let apply_old tfs tvs = 
+    //Change view in order to have a fullperiod for tfs and tvs
+    let sortedv = tvs |> sort |> defaultToNone |> merge
+
+    let apply tf = 
+        let viewf = sortedv |> view tf.period
+        
+        viewf
         |> Seq.map(fun t -> { period=t.period; value=tf.value t.value })
     
     tfs |> Seq.collect apply
