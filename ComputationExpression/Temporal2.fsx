@@ -78,7 +78,7 @@ let split length temporaries =
     temporaries
     |> Seq.collect split
 
-let defaultToNone temporaries = 
+let contiguous temporaries = 
     let it i = i
 
     let folder state current = 
@@ -94,26 +94,31 @@ let defaultToNone temporaries =
                         yield current
                     }
         defaulted, Some current
-
-    let option t = { period=t.period; value = Some t.value }
-
-    match temporaries |> Seq.map option |> Seq.toList with
-    | [] -> Seq.empty
-    | temporaries -> 
+    temporaries
+    |> Seq.mapFold folder None
+    |> fst
+    |> Seq.collect it
+    
+let forever temporaries = 
+    match temporaries |> Seq.toList with
+    | [] -> { period={ startDate = DateTime.MinValue; endDate=DateTime.MaxValue}; value=None } |> Seq.singleton
+    | temporaries ->
         seq{
             let head = temporaries |> Seq.head
             let last = temporaries |> Seq.last
 
             if head.period.startDate <> DateTime.MinValue 
             then yield { period={ startDate=DateTime.MinValue; endDate=head.period.startDate }; value=None }
-            yield! 
-                    temporaries
-                    |> Seq.mapFold folder None
-                    |> fst
-                    |> Seq.collect it
+            yield! temporaries
             if last.period.endDate <> DateTime.MaxValue
             then yield { period={ startDate=last.period.endDate; endDate=DateTime.MaxValue }; value=None }
         }
+
+let defaultToNoneO temporaries = temporaries |> contiguous |> forever
+
+let defaultToNone temporaries = 
+    let option t = { period=t.period; value = Some t.value }
+    temporaries |> Seq.map option |> defaultToNoneO
 
 let merge temporaries = 
 
@@ -143,20 +148,13 @@ let map f temporaries =
 
 let apply tfs tvs = 
     let sortedv = tvs |> sort |> defaultToNone |> merge
-    
-    let tryApply f v = 
-        match f, v with
-        | Some f, Some v -> Some (f v)
-        | _ -> None
-        
+
     let apply tf = 
         sortedv
         |> view tf.period
-//        |> view Period.always
         |> Seq.map(fun t -> { period=t.period; value=tf.value t.value })
     
-    tfs 
-    |> Seq.collect apply
+    tfs |> Seq.collect apply
 
 let (<!>) = map
 let (<*>) = apply
