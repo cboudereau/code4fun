@@ -83,6 +83,7 @@
     <None Include="ApplicativeFunctor.fsx" />
     <None Include="Temporal.fsx" />
     <None Include="Temporal2.fsx" />
+    <None Include="Temporal3.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Excel">
