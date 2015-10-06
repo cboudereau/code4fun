@@ -261,8 +261,3 @@ let actual =
           jan15 18 => jan15 23 := true ]
     <*> [ jan15 1 => jan15 22 := 120m ]
 actual |> print
-
-let expected = 
-    [ DateTime.MinValue => jan15 1 := Some (None,None,None)  
-      jan15 1 => jan15 2 := Some (None, None, Some(120m)) 
-      jan15 2 => jan15 4 := Some (None, Some(false),Some(120m)) 

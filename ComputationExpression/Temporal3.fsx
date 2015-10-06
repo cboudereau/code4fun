@@ -240,11 +240,12 @@ price
 
 //map and apply
 
-availability
-<!> [ jan15 1 => jan15 22 := 120m ]
-<*> [ jan15 4 => jan15 5 := false; jan15 5 => jan15 20 := true ]
-<*> [ jan15 2 => jan15 15 := false
-      jan15 15 => jan15 16 := true
-      jan15 16 => jan15 18 := false
-      jan15 18 => jan15 23 := true ]
-|> print
+let actual2 = 
+    availability
+    <!> [ jan15 4 => jan15 5 := false; jan15 5 => jan15 20 := true ]
+    <*> [ jan15 2 => jan15 15 := false
+          jan15 15 => jan15 16 := true
+          jan15 16 => jan15 18 := false
+          jan15 18 => jan15 23 := true ]
+    <*> [ jan15 1 => jan15 22 := 120m ]
+actual2 |> print
