@@ -133,7 +133,7 @@ let map f temporaries =
     |> Seq.map(fun t -> t.period := f t.value)
 
 let apply tfs tvs = 
-    let sortedv = tvs |> sort |> defaultToNone |> merge
+    let sortedv = tvs |> sort |> merge |> defaultToNone
 
     let apply tf = 
         let intersect tv = 
@@ -141,11 +141,9 @@ let apply tfs tvs =
             | Some i -> {period=i; value = tf.value tv.value} |> Seq.singleton
             | _ -> Seq.empty
 
-        sortedv
-        |> Seq.collect intersect
+        sortedv |> Seq.collect intersect
 
-    tfs
-    |> Seq.collect apply
+    tfs |> Seq.collect apply
         
 let (<!>) = map
 let (<*>) = apply
@@ -157,26 +155,6 @@ let jan15 = d2015 1
 let feb15 = d2015 2
 
 let print source = source |> Seq.iter (printfn "%O")
-
-//merge
-[ jan15 10 => jan15 20 := "Hello"
-  jan15 12 => jan15 14 := "Hello"
-  jan15 23 => jan15 24 := "Tutu"
-  jan15 24 => jan15 25 := "Tutu"
-  jan15 26 => jan15 28 := "Tutu" ] 
-//|> defaultToNone
-|> merge
-|> print
-
-//merge with defaultToNone (without overlap)
-[ jan15 10 => jan15 12 := "Hello"
-  jan15 12 => jan15 14 := "Hello"
-  jan15 23 => jan15 24 := "Tutu"
-  jan15 24 => jan15 25 := "Tutu"
-  jan15 26 => jan15 28 := "Tutu" ] 
-|> defaultToNone
-|> merge
-|> print
 
 //split
 [ jan15 10 => jan15 22 := "Hello" ]
@@ -203,13 +181,8 @@ let mergedSample =
 
 mergedSample |> print
 
+//Smoke test
 contiguousSample |> Seq.toList = (mergedSample |> Seq.toList)
-
-//defaultToNone
-[ jan15 10 => jan15 20 := "Hello"
-  jan15 22 => jan15 23 := "Toto" ] 
-|> defaultToNone 
-|> print
 
 //only map
 let price p = p
@@ -218,7 +191,6 @@ price
 |> print
 
 //map and apply
-
 let actual2 = 
     availability
     <!> [ jan15 4 => jan15 5 := false; jan15 5 => jan15 20 := true ]
