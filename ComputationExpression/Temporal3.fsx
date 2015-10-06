@@ -41,28 +41,6 @@ type Temporary<'a> =
       value : 'a }
     override this.ToString() = sprintf "%O = %O" this.period this.value
 
-//Here rewrite the view function in order to get the full period
-//Consider temporaries to full period (ie defaulted to None)
-let view period temporaries = 
-    
-    let intersect period t = 
-        match Period.intersect t.period period with
-        | Some i -> Some { period=i; value= t.value }
-        | _ -> None
-    
-    let folder state t =
-        match intersect period t with
-        | Some i -> 
-            seq { 
-                yield! state
-                if i.period.startDate > t.period.startDate
-                then yield i }
-        | None -> state
-
-    //Here use contiguous in order to have fullperiod
-    temporaries 
-    |> Seq.fold folder Seq.empty
-
 let (=>) startDate endDate = 
     { startDate = startDate
       endDate = endDate }
@@ -70,6 +48,7 @@ let (=>) startDate endDate =
 let (:=) period value = { period=period; value=value }
 
 let sort temporaries = temporaries |> Seq.sortBy (fun t -> t.period.startDate)
+let option t = { period=t.period; value = Some t.value }
 
 let split length temporaries = 
     let rec split t = 
@@ -83,7 +62,7 @@ let split length temporaries =
     temporaries
     |> Seq.collect split
 
-let contiguous temporaries = 
+let contiguousO temporaries = 
     let it i = i
 
     let folder state current = 
@@ -103,8 +82,10 @@ let contiguous temporaries =
     |> Seq.mapFold folder None
     |> fst
     |> Seq.collect it
-    
-let forever temporaries = 
+
+let contiguous temporaries = temporaries |> Seq.map option |> contiguousO 
+
+let foreverO temporaries = 
     match temporaries |> Seq.toList with
     | [] -> { period={ startDate = DateTime.MinValue; endDate=DateTime.MaxValue}; value=None } |> Seq.singleton
     | temporaries ->
@@ -119,11 +100,11 @@ let forever temporaries =
             then yield { period={ startDate=last.period.endDate; endDate=DateTime.MaxValue }; value=None }
         }
 
-let defaultToNoneO temporaries = temporaries |> contiguous |> forever
+let forever temporaries = temporaries |> Seq.map option |> foreverO
 
-let defaultToNone temporaries = 
-    let option t = { period=t.period; value = Some t.value }
-    temporaries |> Seq.map option |> defaultToNoneO
+let defaultToNoneO temporaries = temporaries |> contiguousO |> foreverO
+
+let defaultToNone temporaries = temporaries |> Seq.map option |> defaultToNoneO
 
 let merge temporaries = 
 
@@ -165,7 +146,6 @@ let apply tfs tvs =
 
     tfs
     |> Seq.collect apply
-//    |> defaultToNoneO //May be I can remove that later
         
 let (<!>) = map
 let (<*>) = apply
@@ -202,7 +182,6 @@ let print source = source |> Seq.iter (printfn "%O")
 [ jan15 10 => jan15 22 := "Hello" ]
 |> split (TimeSpan.FromDays(5.))
 |> print
-
 
 let availability close closeToDeparture price = (close, closeToDeparture, price)
 
