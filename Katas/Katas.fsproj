@@ -60,6 +60,8 @@
     <None Include="Dojo20150924.fsx" />
     <None Include="Sokoban.fsx" />
     <Compile Include="TradingCardGame.fsx" />
+    <None Include="FileStorage.fsx" />
+    <None Include="FsharpDataStream.fsx" />
     <Content Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
