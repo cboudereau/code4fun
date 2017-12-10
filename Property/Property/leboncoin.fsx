@@ -1,4 +1,4 @@
-#r @"D:\packages\FSharp.Data\lib\net45\FSharp.Data.dll"
+#r "../packages/FSharp.Data/lib/net45/FSharp.Data.dll"
 #load "Parsing.fs"
 #load "Result.fs"
 
@@ -19,14 +19,6 @@ module Bid =
     let url b = b.Url
 
 open Bid
-open Result
-open Parsing
-
-let (<|>) f g x = 
-    (f <|> g) x
-    |> Result.mapError (fun (e1,e2) -> [e1; e2])
-
-let (>>.) f g x = f x |> Result.bind(fun _ -> g x)
 
 module Leboncoin = 
     type LbcSearchRq = JsonProvider< "lbc_search_request.json", RootName = "LbcRq", SampleIsList=true >
