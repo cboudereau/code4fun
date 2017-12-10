@@ -1,0 +1,79 @@
+[
+  {
+    "city_id": 2988507,
+    "main": {
+      "temp": 293.32,
+      "temp_min": 291.15,
+      "temp_max": 298.15,
+      "pressure": 1017,
+      "humidity": 48
+    },
+    "wind": {
+      "speed": 4,
+      "deg": 220
+    },
+    "rain": { "1h": 0.01 },
+    "clouds": { "all": 0 },
+    "weather": [
+      {
+        "id": 800,
+        "main": "Clear",
+        "description": "Sky is Clear",
+        "icon": "01d"
+      }
+    ],
+    "dt": 1349096400,
+    "dt_iso": "2012-10-01 13:00:00 +0000 UTC"
+  },
+  {
+    "city_id": 2988507,
+    "main": {
+      "temp": 293.32,
+      "temp_min": 291.15,
+      "temp_max": 298.15,
+      "pressure": 1017,
+      "humidity": 48
+    },
+    "wind": {
+      "speed": 4,
+      "deg": 220
+    },
+    "rain": { "3h": 0.01 },
+    "clouds": { "all": 0 },
+    "weather": [
+      {
+        "id": 800,
+        "main": "Clear",
+        "description": "Sky is Clear",
+        "icon": "01d"
+      }
+    ],
+    "dt": 1349096400,
+    "dt_iso": "2012-10-01 13:00:00 +0000 UTC"
+  },
+  {
+    "city_id": 2988507,
+    "main": {
+      "temp": 293.32,
+      "temp_min": 291.15,
+      "temp_max": 298.15,
+      "pressure": 1017,
+      "humidity": 48
+    },
+    "wind": {
+      "speed": 4,
+      "deg": 220
+    },
+    "clouds": { "all": 0 },
+    "weather": [
+      {
+        "id": 800,
+        "main": "Clear",
+        "description": "Sky is Clear",
+        "icon": "01d"
+      }
+    ],
+    "dt": 1349096400,
+    "dt_iso": "2012-10-01 13:00:00 +0000 UTC"
+  }
+]

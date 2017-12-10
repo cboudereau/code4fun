@@ -1,0 +1,1641 @@
+
+//ZipCode
+POST https://api.leboncoin.fr/api/parrot/v1/cityzipcode/complete HTTP/1.1
+Content-Type: application/json; charset=UTF-8
+Content-Length: 149
+Host: api.leboncoin.fr
+Connection: Keep-Alive
+Accept-Encoding: gzip
+User-Agent: okhttp/3.8.0
+
+{"text":" ","context":{"city_zipcodes":[],"region":"12","region_near":false,"disable_region":false,"department_near":false},"disable_grouping":false}
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Date: Wed, 22 Nov 2017 19:53:09 GMT
+Content-Length: 486
+Strict-Transport-Security: max-age=15768000
+
+[{"city":"Paris","zipcode":"","label":"Paris (toute la ville)","region_id":"","department_id":""},{"city":"Paris","zipcode":"75009","label":"Paris (75009)","region_id":"12","department_id":"75"},{"city":"Paris","zipcode":"75015","label":"Paris (75015)","region_id":"12","department_id":"75"},{"city":"Paris","zipcode":"75018","label":"Paris (75018)","region_id":"12","department_id":"75"},{"city":"Paris","zipcode":"75017","label":"Paris (75017)","region_id":"12","department_id":"75"}]
+
+//Search
+POST https://api.leboncoin.fr/api/parrot/v1/search HTTP/1.1
+User-Agent: LBC;Android;4.4.2;GT-N7100;phone;22239501286c360d;wifi;4.2.5.0;42500;1
+api_key: ba0c2dad52b3ec
+Content-Type: application/json; charset=UTF-8
+Content-Length: 393
+Host: api.leboncoin.fr
+Connection: Keep-Alive
+Accept-Encoding: gzip
+
+{"sort_order":"desc","filters":{"category":{"id":"9"},"enums":{"ad_type":["offer"]},"keywords":{},"location":{"area":{"lat":0.0,"lng":0.0,"radius":0},"city_zipcodes":[{"city":"Samoreau","label":"Samoreau (77210)","zipcode":"77210"}],"region":"12","department_near":false,"region_near":false},"owner":{},"ranges":{}},"sort_by":"time","owner_type":"all","pivot":"0,0,0","limit":20,"limit_alu":2}
+
+
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Date: Wed, 22 Nov 2017 19:53:08 GMT
+Strict-Transport-Security: max-age=15768000
+Content-Length: 70253
+
+{
+  "total": 14,
+  "total_all": 14,
+  "total_pro": 13,
+  "total_private": 1,
+  "ads": [
+    {
+      "list_id": 1338669993,
+      "index_date": "2017-11-16 11:23:39",
+      "category_id": "9",
+      "category_name": "Ventes immobilières",
+      "subject": "Terrain 480 m² Samoreau",
+      "body": "Beau terrain à bâtir de 480 m² avec une façade sur rue de 16 ml situé dans un secteur pavillonnaire. Commerces, école maternelle et primaire sur place. Gare de Lyon en 50 minutes. Faites construire avec Maisons France Confort, contactez Philippe au 06.12.72.07.91 pour une étude personnalisé de votre projet.\n\nTerrain proposé par un partenaire foncier selon disponibilités et autorisation de publicité et sélectionné par le constructeur en vue de construire une maison neuve avec un contrat de construction de maison individuelle, dans le cadre de la loi du 10/12/1990. Assurances et garanties du constructeur (RC professionnelle, décennale, dommage ouvrage, garantie de remboursement de l'acompte,  livraison à prix et délai convenu) : ***/fr/mentions_legales.aspx.\nRéférence annonce : PP-Samoreau16_11\nLe prix indiqué comprend les honoraires à la charge de l'acheteur : 6,00% TTC du prix du bien hors honoraires\nPrix hors honoraires : 115 094 €",
+      "ad_type": "offer",
+      "url": "https://www.leboncoin.fr/vi/1338669993.htm",
+      "price": [
+        122000
+      ],
+      "price_calendar": null,
+      "images": {
+        "thumb_url": "https://img2.leboncoin.fr/ad-thumb/9ffc09a0cfa681c0a17baf160a59ad3aa0986fad.jpg",
+        "small_url": "https://img2.leboncoin.fr/ad-small/9ffc09a0cfa681c0a17baf160a59ad3aa0986fad.jpg",
+        "nb_images": 1,
+        "urls": [
+          "https://img2.leboncoin.fr/ad-image/9ffc09a0cfa681c0a17baf160a59ad3aa0986fad.jpg"
+        ],
+        "urls_thumb": [
+          "https://img2.leboncoin.fr/ad-thumb/9ffc09a0cfa681c0a17baf160a59ad3aa0986fad.jpg"
+        ],
+        "urls_large": [
+          "https://img2.leboncoin.fr/ad-large/9ffc09a0cfa681c0a17baf160a59ad3aa0986fad.jpg"
+        ]
+      },
+      "location": {
+        "region_id": "12",
+        "region_name": "Ile-de-France",
+        "department_id": "77",
+        "department_name": "Seine-et-Marne",
+        "city_label": "Samoreau 77210",
+        "city": "Samoreau",
+        "zipcode": "77210",
+        "lat": 48.42374,
+        "lng": 2.75192,
+        "source": "city",
+        "provider": "lbc"
+      },
+      "attributes": [
+        {
+          "key": "fai_included",
+          "value": "1",
+          "key_label": "Frais d'agence inclus",
+          "value_label": "Oui",
+          "generic": true
+        },
+        {
+          "key": "real_estate_type",
+          "value": "3",
+          "key_label": "Type de bien",
+          "value_label": "Terrain",
+          "generic": true
+        },
+        {
+          "key": "square",
+          "value": "480",
+          "key_label": "Surface",
+          "value_label": "480",
+          "generic": true
+        },
+        {
+          "key": "custom_ref",
+          "value": "PP-Samoreau16_11",
+          "key_label": "Référence",
+          "value_label": "PP-Samoreau16_11",
+          "generic": true
+        }
+      ],
+      "owner": {
+        "store_id": "17211457",
+        "user_id": "cf8fd03e-0fc8-4964-b2f5-632bcca880d0",
+        "type": "pro",
+        "name": "MAISONS FRANCE CONFORT",
+        "siren": "095720314"
+      },
+      "options": {
+        "has_option": false,
+        "booster": false,
+        "photosup": false,
+        "urgent": false,
+        "gallery": false,
+        "sub_toplist": false
+      },
+      "has_phone": true
+    },
+    {
+      "list_id": 1338256224,
+      "index_date": "2017-11-15 10:03:31",
+      "category_id": "9",
+      "category_name": "Ventes immobilières",
+      "subject": "Maison 5 pièces 88 m²",
+      "body": "Vente Maison/villa 5 pièces\n\nI@D France - Thierry BEAUVALLET (06 24 57 48 41) vous propose : Maison traditionnelle d'habitation de 88 m² environ comprenant une entrée, un dégagement desservant le séjour avec cheminée, une cuisine, une salle d'eau, un WC, 2 chambres. A l'étage des combles ont été aménagés en deux chambres et un WC. Un espace est libre pour une salle d'eau. C'est une maison élevée sur un sous-sol total avec des espaces buanderie, chaufferie, atelier et garage. Un terrain de 1057 m² environ entièrement clos avec arbres, haies et potager. Et son cabanon!PREVOIR DES TRAVAUX DE RENOVATION. POSSIBILITE DE DIVISER LE TERRAIN DE 1057 M² environ. ACCES GARE 5 MINUTES A PIED. TRAINS CADENCES POUR PARIS GARE DE LYON.MAISON VENDUE EN VENTE LONGUE. VOUS POURREZ HABITER OU LOUER CETTE MAISON A PARTIR DU 1ER OCTOBRE 2018.\n\nHonoraires d'agence à la charge du vendeur.Information d'affichage énergétique sur ce bien : DPE F indice 331 et GES F indice 56. La présente annonce immobilière a été rédigée sous la responsabilité éditoriale de M. Thierry BEAUVALLET (ID 20543), Agent Commercial mandataire en immobilier immatriculé au Registre Spécial des Agents Commerciaux (RSAC) du Tribunal de Commerce de MELUN sous le numéro 825323116.\nRéférence annonce : 475734",
+      "ad_type": "offer",
+      "url": "https://www.leboncoin.fr/vi/1338256224.htm",
+      "price": [
+        220000
+      ],
+      "price_calendar": null,
+      "images": {
+        "thumb_url": "https://img3.leboncoin.fr/ad-thumb/d23de63f84d6f2814fd18c0da612eb26db30ddd1.jpg",
+        "small_url": "https://img3.leboncoin.fr/ad-small/d23de63f84d6f2814fd18c0da612eb26db30ddd1.jpg",
+        "nb_images": 9,
+        "urls": [
+          "https://img3.leboncoin.fr/ad-image/d23de63f84d6f2814fd18c0da612eb26db30ddd1.jpg",
+          "https://img3.leboncoin.fr/ad-image/f2faadd8653a44ea9af89e758e2d807a7248c7eb.jpg",
+          "https://img6.leboncoin.fr/ad-image/a15efedad1777b45ebb9ef8b72a934fb996a5841.jpg",
+          "https://img7.leboncoin.fr/ad-image/12685790379e18871f14dd256c8f7b79cca5217f.jpg",
+          "https://img0.leboncoin.fr/ad-image/1b3b4eee47c121f0b085f839b2a4759d79ac9ffc.jpg",
+          "https://img7.leboncoin.fr/ad-image/1016b60bd3e787c6feee84d55913a20347758727.jpg",
+          "https://img7.leboncoin.fr/ad-image/c9c846fe7e324b40d11a9d6d81e75ce081116cee.jpg",
+          "https://img1.leboncoin.fr/ad-image/8b468f09156b67cbb688e932925800a17effe43b.jpg",
+          "https://img7.leboncoin.fr/ad-image/0e9b70e36395016c6136a678ffb059c633d668be.jpg"
+        ],
+        "urls_thumb": [
+          "https://img3.leboncoin.fr/ad-thumb/d23de63f84d6f2814fd18c0da612eb26db30ddd1.jpg",
+          "https://img3.leboncoin.fr/ad-thumb/f2faadd8653a44ea9af89e758e2d807a7248c7eb.jpg",
+          "https://img6.leboncoin.fr/ad-thumb/a15efedad1777b45ebb9ef8b72a934fb996a5841.jpg",
+          "https://img7.leboncoin.fr/ad-thumb/12685790379e18871f14dd256c8f7b79cca5217f.jpg",
+          "https://img0.leboncoin.fr/ad-thumb/1b3b4eee47c121f0b085f839b2a4759d79ac9ffc.jpg",
+          "https://img7.leboncoin.fr/ad-thumb/1016b60bd3e787c6feee84d55913a20347758727.jpg",
+          "https://img7.leboncoin.fr/ad-thumb/c9c846fe7e324b40d11a9d6d81e75ce081116cee.jpg",
+          "https://img1.leboncoin.fr/ad-thumb/8b468f09156b67cbb688e932925800a17effe43b.jpg",
+          "https://img7.leboncoin.fr/ad-thumb/0e9b70e36395016c6136a678ffb059c633d668be.jpg"
+        ],
+        "urls_large": [
+          "https://img3.leboncoin.fr/ad-large/d23de63f84d6f2814fd18c0da612eb26db30ddd1.jpg",
+          "https://img3.leboncoin.fr/ad-large/f2faadd8653a44ea9af89e758e2d807a7248c7eb.jpg",
+          "https://img6.leboncoin.fr/ad-large/a15efedad1777b45ebb9ef8b72a934fb996a5841.jpg",
+          "https://img7.leboncoin.fr/ad-large/12685790379e18871f14dd256c8f7b79cca5217f.jpg",
+          "https://img0.leboncoin.fr/ad-large/1b3b4eee47c121f0b085f839b2a4759d79ac9ffc.jpg",
+          "https://img7.leboncoin.fr/ad-large/1016b60bd3e787c6feee84d55913a20347758727.jpg",
+          "https://img7.leboncoin.fr/ad-large/c9c846fe7e324b40d11a9d6d81e75ce081116cee.jpg",
+          "https://img1.leboncoin.fr/ad-large/8b468f09156b67cbb688e932925800a17effe43b.jpg",
+          "https://img7.leboncoin.fr/ad-large/0e9b70e36395016c6136a678ffb059c633d668be.jpg"
+        ]
+      },
+      "location": {
+        "region_id": "12",
+        "region_name": "Ile-de-France",
+        "department_id": "77",
+        "department_name": "Seine-et-Marne",
+        "city_label": "Samoreau 77210",
+        "city": "Samoreau",
+        "zipcode": "77210",
+        "lat": 48.42374,
+        "lng": 2.75192,
+        "source": "city",
+        "provider": "lbc"
+      },
+      "attributes": [
+        {
+          "key": "real_estate_type",
+          "value": "1",
+          "key_label": "Type de bien",
+          "value_label": "Maison",
+          "generic": true
+        },
+        {
+          "key": "rooms",
+          "value": "5",
+          "key_label": "Pièces",
+          "value_label": "5",
+          "generic": true
+        },
+        {
+          "key": "square",
+          "value": "88",
+          "key_label": "Surface",
+          "value_label": "88",
+          "generic": true
+        },
+        {
+          "key": "ges",
+          "value": "f",
+          "key_label": "GES",
+          "value_label": "F (de 56 à 80)",
+          "generic": true
+        },
+        {
+          "key": "energy_rate",
+          "value": "f",
+          "key_label": "Classe énergie",
+          "value_label": "F (de 331 à 450)",
+          "generic": true
+        },
+        {
+          "key": "pro_rates_link",
+          "value": "https://www.iadfrance.fr/bareme.pdf",
+          "value_label": "https://www.iadfrance.fr/bareme.pdf",
+          "generic": false
+        }
+      ],
+      "owner": {
+        "store_id": "26181975",
+        "user_id": "f341d28b-abce-4bc9-9c59-34ce919c34b3",
+        "type": "pro",
+        "name": "I@D FRANCE",
+        "siren": "825323116",
+        "pro_rates_link": "https://www.iadfrance.fr/bareme.pdf"
+      },
+      "options": {
+        "has_option": false,
+        "booster": false,
+        "photosup": false,
+        "urgent": false,
+        "gallery": false,
+        "sub_toplist": false
+      },
+      "has_phone": true
+    },
+    {
+      "list_id": 1310213592,
+      "index_date": "2017-11-15 07:42:57",
+      "category_id": "9",
+      "category_name": "Ventes immobilières",
+      "subject": "Maison 6 pièces 140 m²",
+      "body": "Vente Maison/villa 6 pièces\n\nI@D France - Michèle BINOIS (06 09 54 38 06) vous propose : MAISON FAMILIALE à dix minutes à pied du centre du joli village de Samoreau entièrement rénovée avec extension créée en 2010.Au rez de chaussée vous disposez d'un bel espace à vivre de 50 m² environ comprenant cuisine aménagée et équipée, salle à manger, salon avec ouverture sur terrasses, dégagement avec placard, deux chambres dont une très vaste avec ses deux dressings, salle de bains et douches, wc lave-mains.A l'étage le palier dessert deux grandes chambres, une pièce prévue pour une salle de douches, wc, combles.Nombreux rangements.Buanderie-chaufferie (Chaudière à condensation récente), ballon d'eau chaude à gaz possibilité en énergie solaire.Double-garage, abri de jardin. Terrain clos sans à vis d'environ 673 m² environ implantation de la maison comprise.Une partie du ravalement restera à prévoir.Commerces, écoles, arrêt de bus à proximité.\n\nHonoraires d'agence à la charge du vendeur.Information d'affichage énergétique sur ce bien : DPE C indice 129 et GES D indice 30. La présente annonce immobilière a été rédigée sous la responsabilité éditoriale de Mme Michèle BINOIS (ID 6656), Agent Commercial mandataire en immobilier immatriculé au Registre Spécial des Agents Commerciaux (RSAC) du Tribunal de Commerce de MELUN sous le numéro 347511016.\nRéférence annonce : 461590",
+      "ad_type": "offer",
+      "url": "https://www.leboncoin.fr/vi/1310213592.htm",
+      "price": [
+        328000
+      ],
+      "price_calendar": null,
+      "images": {
+        "thumb_url": "https://img0.leboncoin.fr/ad-thumb/ce3933b6154683742807313a8f32c38e1b84b6e0.jpg",
+        "small_url": "https://img0.leboncoin.fr/ad-small/ce3933b6154683742807313a8f32c38e1b84b6e0.jpg",
+        "nb_images": 9,
+        "urls": [
+          "https://img0.leboncoin.fr/ad-image/ce3933b6154683742807313a8f32c38e1b84b6e0.jpg",
+          "https://img2.leboncoin.fr/ad-image/92c22de4de913999a43ce74fe8393927f5d5e327.jpg",
+          "https://img5.leboncoin.fr/ad-image/73ce604cf2a779d95ca7ba06df7d211b1ad98eee.jpg",
+          "https://img1.leboncoin.fr/ad-image/040411f2b4a957b2a6beec08a2e6f7802f1b4df4.jpg",
+          "https://img7.leboncoin.fr/ad-image/f2fed7a735cb3c7d95788c4b5dcc691771b0d0f2.jpg",
+          "https://img4.leboncoin.fr/ad-image/1289a117e2649560aa6ab59fac98191c9d4554c7.jpg",
+          "https://img3.leboncoin.fr/ad-image/35df0290137852b044bc98230e7dff121d82d42e.jpg",
+          "https://img5.leboncoin.fr/ad-image/a413249b6a0f5a0535eafdd58766468093cdc82a.jpg",
+          "https://img2.leboncoin.fr/ad-image/cab90551b94d7954c58f10dd078165276fc07db1.jpg"
+        ],
+        "urls_thumb": [
+          "https://img0.leboncoin.fr/ad-thumb/ce3933b6154683742807313a8f32c38e1b84b6e0.jpg",
+          "https://img2.leboncoin.fr/ad-thumb/92c22de4de913999a43ce74fe8393927f5d5e327.jpg",
+          "https://img5.leboncoin.fr/ad-thumb/73ce604cf2a779d95ca7ba06df7d211b1ad98eee.jpg",
+          "https://img1.leboncoin.fr/ad-thumb/040411f2b4a957b2a6beec08a2e6f7802f1b4df4.jpg",
+          "https://img7.leboncoin.fr/ad-thumb/f2fed7a735cb3c7d95788c4b5dcc691771b0d0f2.jpg",
+          "https://img4.leboncoin.fr/ad-thumb/1289a117e2649560aa6ab59fac98191c9d4554c7.jpg",
+          "https://img3.leboncoin.fr/ad-thumb/35df0290137852b044bc98230e7dff121d82d42e.jpg",
+          "https://img5.leboncoin.fr/ad-thumb/a413249b6a0f5a0535eafdd58766468093cdc82a.jpg",
+          "https://img2.leboncoin.fr/ad-thumb/cab90551b94d7954c58f10dd078165276fc07db1.jpg"
+        ],
+        "urls_large": [
+          "https://img0.leboncoin.fr/ad-large/ce3933b6154683742807313a8f32c38e1b84b6e0.jpg",
+          "https://img2.leboncoin.fr/ad-large/92c22de4de913999a43ce74fe8393927f5d5e327.jpg",
+          "https://img5.leboncoin.fr/ad-large/73ce604cf2a779d95ca7ba06df7d211b1ad98eee.jpg",
+          "https://img1.leboncoin.fr/ad-large/040411f2b4a957b2a6beec08a2e6f7802f1b4df4.jpg",
+          "https://img7.leboncoin.fr/ad-large/f2fed7a735cb3c7d95788c4b5dcc691771b0d0f2.jpg",
+          "https://img4.leboncoin.fr/ad-large/1289a117e2649560aa6ab59fac98191c9d4554c7.jpg",
+          "https://img3.leboncoin.fr/ad-large/35df0290137852b044bc98230e7dff121d82d42e.jpg",
+          "https://img5.leboncoin.fr/ad-large/a413249b6a0f5a0535eafdd58766468093cdc82a.jpg",
+          "https://img2.leboncoin.fr/ad-large/cab90551b94d7954c58f10dd078165276fc07db1.jpg"
+        ]
+      },
+      "location": {
+        "region_id": "12",
+        "region_name": "Ile-de-France",
+        "department_id": "77",
+        "department_name": "Seine-et-Marne",
+        "city_label": "Samoreau 77210",
+        "city": "Samoreau",
+        "zipcode": "77210",
+        "lat": 48.42374,
+        "lng": 2.75192,
+        "source": "city",
+        "provider": "lbc"
+      },
+      "attributes": [
+        {
+          "key": "real_estate_type",
+          "value": "1",
+          "key_label": "Type de bien",
+          "value_label": "Maison",
+          "generic": true
+        },
+        {
+          "key": "rooms",
+          "value": "6",
+          "key_label": "Pièces",
+          "value_label": "6",
+          "generic": true
+        },
+        {
+          "key": "square",
+          "value": "140",
+          "key_label": "Surface",
+          "value_label": "140",
+          "generic": true
+        },
+        {
+          "key": "custom_ref",
+          "value": "461590",
+          "key_label": "Référence",
+          "value_label": "461590",
+          "generic": true
+        },
+        {
+          "key": "ges",
+          "value": "d",
+          "key_label": "GES",
+          "value_label": "D (de 21 à 35)",
+          "generic": true
+        },
+        {
+          "key": "energy_rate",
+          "value": "c",
+          "key_label": "Classe énergie",
+          "value_label": "C (de 91 à 150)",
+          "generic": true
+        },
+        {
+          "key": "pro_rates_link",
+          "value": "https://www.iadfrance.fr/bareme.pdf",
+          "value_label": "https://www.iadfrance.fr/bareme.pdf",
+          "generic": false
+        }
+      ],
+      "owner": {
+        "store_id": "15624242",
+        "user_id": "d7e51ed2-35ea-44ac-83ee-0c6da89c9716",
+        "type": "pro",
+        "name": "I@D FRANCE",
+        "siren": "347511016",
+        "pro_rates_link": "https://www.iadfrance.fr/bareme.pdf"
+      },
+      "options": {
+        "has_option": false,
+        "booster": false,
+        "photosup": false,
+        "urgent": false,
+        "gallery": false,
+        "sub_toplist": false
+      },
+      "has_phone": true
+    },
+    {
+      "list_id": 1332990148,
+      "index_date": "2017-11-06 15:48:14",
+      "category_id": "9",
+      "category_name": "Ventes immobilières",
+      "subject": "Maison 5 pièces 155 m²",
+      "body": "Vente Maison/villa 5 pièces\n\nI@D France - Cyrille PAKULA (06 32 28 85 92) vous propose : SAMOREAU , située sur 500 m2 environ de terrain au calme, maison de 7 pièces composée au rez de chaussée d'une cuisine, double salon donnant sur une agréable véranda climatisée, suite parentale, bureau, cellier, buanderie, wc. A l'étage, 3 chambres, salle d'eau avec wc.\n\nHonoraires d'agence à la charge du vendeur.Information d'affichage énergétique sur ce bien : DPE E indice 271.2 et GES F indice 63.5. La présente annonce immobilière a été rédigée sous la responsabilité éditoriale de M. Cyrille PAKULA (ID 18217), Agent Commercial mandataire en immobilier immatriculé au Registre Spécial des Agents Commerciaux (RSAC) du Tribunal de Commerce de MELUN sous le numéro 818638306.\nRéférence annonce : 459318",
+      "ad_type": "offer",
+      "url": "https://www.leboncoin.fr/vi/1332990148.htm",
+      "price": [
+        337000
+      ],
+      "price_calendar": null,
+      "images": {
+        "thumb_url": "https://img3.leboncoin.fr/ad-thumb/77606efd2e05ce2123bc08c47f4b086026ea27fc.jpg",
+        "small_url": "https://img3.leboncoin.fr/ad-small/77606efd2e05ce2123bc08c47f4b086026ea27fc.jpg",
+        "nb_images": 7,
+        "urls": [
+          "https://img3.leboncoin.fr/ad-image/77606efd2e05ce2123bc08c47f4b086026ea27fc.jpg",
+          "https://img2.leboncoin.fr/ad-image/d6f3220504e6f2046eb73dea2c9d004ce88f3d47.jpg",
+          "https://img0.leboncoin.fr/ad-image/6f3f847224be5b617596f135f4f72b3b98d2f3a1.jpg",
+          "https://img1.leboncoin.fr/ad-image/f4cbacd4f417e384e7260c03573278edb974970f.jpg",
+          "https://img1.leboncoin.fr/ad-image/c76e08067b3aab0b2baf364f10d857fd93dbb153.jpg",
+          "https://img1.leboncoin.fr/ad-image/96186177049c1d0ba57cac1bf9d6fe0ed7ec0340.jpg",
+          "https://img3.leboncoin.fr/ad-image/11c280f6a116fdd64fed2e31a7da704979919afc.jpg"
+        ],
+        "urls_thumb": [
+          "https://img3.leboncoin.fr/ad-thumb/77606efd2e05ce2123bc08c47f4b086026ea27fc.jpg",
+          "https://img2.leboncoin.fr/ad-thumb/d6f3220504e6f2046eb73dea2c9d004ce88f3d47.jpg",
+          "https://img0.leboncoin.fr/ad-thumb/6f3f847224be5b617596f135f4f72b3b98d2f3a1.jpg",
+          "https://img1.leboncoin.fr/ad-thumb/f4cbacd4f417e384e7260c03573278edb974970f.jpg",
+          "https://img1.leboncoin.fr/ad-thumb/c76e08067b3aab0b2baf364f10d857fd93dbb153.jpg",
+          "https://img1.leboncoin.fr/ad-thumb/96186177049c1d0ba57cac1bf9d6fe0ed7ec0340.jpg",
+          "https://img3.leboncoin.fr/ad-thumb/11c280f6a116fdd64fed2e31a7da704979919afc.jpg"
+        ],
+        "urls_large": [
+          "https://img3.leboncoin.fr/ad-large/77606efd2e05ce2123bc08c47f4b086026ea27fc.jpg",
+          "https://img2.leboncoin.fr/ad-large/d6f3220504e6f2046eb73dea2c9d004ce88f3d47.jpg",
+          "https://img0.leboncoin.fr/ad-large/6f3f847224be5b617596f135f4f72b3b98d2f3a1.jpg",
+          "https://img1.leboncoin.fr/ad-large/f4cbacd4f417e384e7260c03573278edb974970f.jpg",
+          "https://img1.leboncoin.fr/ad-large/c76e08067b3aab0b2baf364f10d857fd93dbb153.jpg",
+          "https://img1.leboncoin.fr/ad-large/96186177049c1d0ba57cac1bf9d6fe0ed7ec0340.jpg",
+          "https://img3.leboncoin.fr/ad-large/11c280f6a116fdd64fed2e31a7da704979919afc.jpg"
+        ]
+      },
+      "location": {
+        "region_id": "12",
+        "region_name": "Ile-de-France",
+        "department_id": "77",
+        "department_name": "Seine-et-Marne",
+        "city_label": "Samoreau 77210",
+        "city": "Samoreau",
+        "zipcode": "77210",
+        "lat": 48.42374,
+        "lng": 2.75192,
+        "source": "city",
+        "provider": "lbc"
+      },
+      "attributes": [
+        {
+          "key": "real_estate_type",
+          "value": "1",
+          "key_label": "Type de bien",
+          "value_label": "Maison",
+          "generic": true
+        },
+        {
+          "key": "rooms",
+          "value": "5",
+          "key_label": "Pièces",
+          "value_label": "5",
+          "generic": true
+        },
+        {
+          "key": "square",
+          "value": "155",
+          "key_label": "Surface",
+          "value_label": "155",
+          "generic": true
+        },
+        {
+          "key": "custom_ref",
+          "value": "459318",
+          "key_label": "Référence",
+          "value_label": "459318",
+          "generic": true
+        },
+        {
+          "key": "ges",
+          "value": "f",
+          "key_label": "GES",
+          "value_label": "F (de 56 à 80)",
+          "generic": true
+        },
+        {
+          "key": "energy_rate",
+          "value": "e",
+          "key_label": "Classe énergie",
+          "value_label": "E (de 231 à 330)",
+          "generic": true
+        },
+        {
+          "key": "pro_rates_link",
+          "value": "https://www.iadfrance.fr/bareme.pdf",
+          "value_label": "https://www.iadfrance.fr/bareme.pdf",
+          "generic": false
+        }
+      ],
+      "owner": {
+        "store_id": "19014216",
+        "user_id": "5d779066-d061-40fe-80be-5d485e317b93",
+        "type": "pro",
+        "name": "I@D FRANCE",
+        "siren": "818638306",
+        "pro_rates_link": "https://www.iadfrance.fr/bareme.pdf"
+      },
+      "options": {
+        "has_option": false,
+        "booster": false,
+        "photosup": false,
+        "urgent": false,
+        "gallery": false,
+        "sub_toplist": false
+      },
+      "has_phone": true
+    },
+    {
+      "list_id": 1329041716,
+      "index_date": "2017-10-31 15:28:24",
+      "category_id": "9",
+      "category_name": "Ventes immobilières",
+      "subject": "Maison 7 pièces 152 m²",
+      "body": "Dans une rue calme et à 10mn de la  gare de fontainebleau-Avon (trains directs Paris, proche tous commerces et nouveau collège) cette maison de 152m² se compose d'un double séjour donnant sur une véranda d'environ 25m² (exposition plein sud), de 2 chambres (dont une avec sa salle de bains et douche), cuisine aménagée, wc indépendant, pièce buanderie.\nL'étage dessert 3 chambres lumineuses, salle d'eau avec wc.\n\nL'ensemble étant édifié sur un terrain d'environ 500m².\n\nNous vous invitons à prendre contact pour une visite de découverte de cette maison familiale, très agréable par sa luminosité et sa vue sur jardin.\n\nCarole PAQUOTTE \n 06.58.14.61.51 \n Agent commerciale indépendante. \n 77300 FONTAINEBLEAU \n R.S.A.C Melun 789 110 582\nHonoraires à la charge du vendeur. \nConsultez nos tarifs sur le site 'les Porteclés de l'Immobilier'\n***/assets/static/lpc/legal/tarif_general_lpci.pdf\nHonoraires d'agence à la charge du vendeur.\nConsultez nos tarifs sur le site de Immobilier Email.\nAnnonce publiée le 22/11/2017 par Carole Paquotte 0658146151, agent commercial indépendant de IMMOBILIER EMAIL SAS RSAC 789110582 00010\nRéférence annonce : fr05995\nLes honoraires sont à la charge du vendeur",
+      "ad_type": "offer",
+      "url": "https://www.leboncoin.fr/vi/1329041716.htm",
+      "price": [
+        337000
+      ],
+      "price_calendar": null,
+      "images": {
+        "thumb_url": "https://img1.leboncoin.fr/ad-thumb/b99e473d6528f00eddd8b60474362731e6645b58.jpg",
+        "small_url": "https://img1.leboncoin.fr/ad-small/b99e473d6528f00eddd8b60474362731e6645b58.jpg",
+        "nb_images": 9,
+        "urls": [
+          "https://img1.leboncoin.fr/ad-image/b99e473d6528f00eddd8b60474362731e6645b58.jpg",
+          "https://img7.leboncoin.fr/ad-image/712935df1c552c303439c3967dade60e0ee7b487.jpg",
+          "https://img2.leboncoin.fr/ad-image/d332def9a9b646d6e196e3890a0ab16328268601.jpg",
+          "https://img5.leboncoin.fr/ad-image/c1e439f61e4380f47b696768be22d92a569c002c.jpg",
+          "https://img1.leboncoin.fr/ad-image/ff818c52fac5a5867a974b96e92fb411fb8212e2.jpg",
+          "https://img5.leboncoin.fr/ad-image/071d8c633b044e129df6183bcf9744ba906bdfea.jpg",
+          "https://img3.leboncoin.fr/ad-image/3963be4d2e11db05c9f28cea599fed610ac4d115.jpg",
+          "https://img0.leboncoin.fr/ad-image/852ad37cf8ea99a51a2ebb5491c8fd0aa3bacd60.jpg",
+          "https://img4.leboncoin.fr/ad-image/32b418f4f7c6bc72deea19b14b83cc25d8ccbe82.jpg"
+        ],
+        "urls_thumb": [
+          "https://img1.leboncoin.fr/ad-thumb/b99e473d6528f00eddd8b60474362731e6645b58.jpg",
+          "https://img7.leboncoin.fr/ad-thumb/712935df1c552c303439c3967dade60e0ee7b487.jpg",
+          "https://img2.leboncoin.fr/ad-thumb/d332def9a9b646d6e196e3890a0ab16328268601.jpg",
+          "https://img5.leboncoin.fr/ad-thumb/c1e439f61e4380f47b696768be22d92a569c002c.jpg",
+          "https://img1.leboncoin.fr/ad-thumb/ff818c52fac5a5867a974b96e92fb411fb8212e2.jpg",
+          "https://img5.leboncoin.fr/ad-thumb/071d8c633b044e129df6183bcf9744ba906bdfea.jpg",
+          "https://img3.leboncoin.fr/ad-thumb/3963be4d2e11db05c9f28cea599fed610ac4d115.jpg",
+          "https://img0.leboncoin.fr/ad-thumb/852ad37cf8ea99a51a2ebb5491c8fd0aa3bacd60.jpg",
+          "https://img4.leboncoin.fr/ad-thumb/32b418f4f7c6bc72deea19b14b83cc25d8ccbe82.jpg"
+        ],
+        "urls_large": [
+          "https://img1.leboncoin.fr/ad-large/b99e473d6528f00eddd8b60474362731e6645b58.jpg",
+          "https://img7.leboncoin.fr/ad-large/712935df1c552c303439c3967dade60e0ee7b487.jpg",
+          "https://img2.leboncoin.fr/ad-large/d332def9a9b646d6e196e3890a0ab16328268601.jpg",
+          "https://img5.leboncoin.fr/ad-large/c1e439f61e4380f47b696768be22d92a569c002c.jpg",
+          "https://img1.leboncoin.fr/ad-large/ff818c52fac5a5867a974b96e92fb411fb8212e2.jpg",
+          "https://img5.leboncoin.fr/ad-large/071d8c633b044e129df6183bcf9744ba906bdfea.jpg",
+          "https://img3.leboncoin.fr/ad-large/3963be4d2e11db05c9f28cea599fed610ac4d115.jpg",
+          "https://img0.leboncoin.fr/ad-large/852ad37cf8ea99a51a2ebb5491c8fd0aa3bacd60.jpg",
+          "https://img4.leboncoin.fr/ad-large/32b418f4f7c6bc72deea19b14b83cc25d8ccbe82.jpg"
+        ]
+      },
+      "location": {
+        "region_id": "12",
+        "region_name": "Ile-de-France",
+        "department_id": "77",
+        "department_name": "Seine-et-Marne",
+        "city_label": "Samoreau 77210",
+        "city": "Samoreau",
+        "zipcode": "77210",
+        "lat": 48.42374,
+        "lng": 2.75192,
+        "source": "city",
+        "provider": "lbc"
+      },
+      "attributes": [
+        {
+          "key": "real_estate_type",
+          "value": "1",
+          "key_label": "Type de bien",
+          "value_label": "Maison",
+          "generic": true
+        },
+        {
+          "key": "rooms",
+          "value": "7",
+          "key_label": "Pièces",
+          "value_label": "7",
+          "generic": true
+        },
+        {
+          "key": "square",
+          "value": "152",
+          "key_label": "Surface",
+          "value_label": "152",
+          "generic": true
+        },
+        {
+          "key": "custom_ref",
+          "value": "fr05995",
+          "key_label": "Référence",
+          "value_label": "fr05995",
+          "generic": true
+        },
+        {
+          "key": "ges",
+          "value": "f",
+          "key_label": "GES",
+          "value_label": "F (de 56 à 80)",
+          "generic": true
+        },
+        {
+          "key": "energy_rate",
+          "value": "e",
+          "key_label": "Classe énergie",
+          "value_label": "E (de 231 à 330)",
+          "generic": true
+        },
+        {
+          "key": "pro_rates_link",
+          "value": "https://www.lesportecles.com/assets/static/lpc/legal/tarif_general_lpci.pdf",
+          "value_label": "https://www.lesportecles.com/assets/static/lpc/legal/tarif_general_lpci.pdf",
+          "generic": false
+        }
+      ],
+      "owner": {
+        "store_id": "9152820",
+        "user_id": "9523e3c7-e27e-44b3-a729-d6ff332d6051",
+        "type": "pro",
+        "name": "IMMOBILIER EMAIL",
+        "siren": "803156934",
+        "pro_rates_link": "https://www.lesportecles.com/assets/static/lpc/legal/tarif_general_lpci.pdf"
+      },
+      "options": {
+        "has_option": false,
+        "booster": false,
+        "photosup": false,
+        "urgent": false,
+        "gallery": false,
+        "sub_toplist": false
+      },
+      "has_phone": true
+    },
+    {
+      "list_id": 1120882893,
+      "index_date": "2017-10-30 10:18:19",
+      "category_id": "9",
+      "category_name": "Ventes immobilières",
+      "subject": "Maison 6 pièces 150 m²",
+      "body": "Maison d'habitation\n\nA vendre Maison / villa SAMOREAU (77210)\nSAMOREAU, Maison d'habitation - Maison individuelle située à deux pas des écoles, proximité toutes commodités, grand jardin sans vis-à-vis, garage, grenier,\ncomposée : en rez de jardin : entrée, cuisine aménagée avec espace repas, salon (sous véranda), chambre, espace dressing, salle d'eau, water closet -\n1er étage : mezzannine, bureau, trois chambres, salle d'eau water-closet\nPour tout renseignement contacter Céline LUBIN au 01.60.74.58.28 ou negociation.77035@notaires.fr\nContact : 01.60.74.58.28\nUne annonce immobilière de notaire propulsée par Immobilier.notaires®\nRéférence annonce : 035_563\nPrix de vente : 255 000 € + 9200 € TTC (émoluments de négociation à la charge de l'acquéreur)",
+      "ad_type": "offer",
+      "url": "https://www.leboncoin.fr/vi/1120882893.htm",
+      "price": [
+        264200
+      ],
+      "price_calendar": null,
+      "images": {
+        "thumb_url": "https://img4.leboncoin.fr/ad-thumb/84e534ad0ea4d0f458f059b33837243893f1023e.jpg",
+        "small_url": "https://img4.leboncoin.fr/ad-small/84e534ad0ea4d0f458f059b33837243893f1023e.jpg",
+        "nb_images": 5,
+        "urls": [
+          "https://img4.leboncoin.fr/ad-image/84e534ad0ea4d0f458f059b33837243893f1023e.jpg",
+          "https://img2.leboncoin.fr/ad-image/57b76df8c5ac0d58a227e24095cbbb1af6524cff.jpg",
+          "https://img3.leboncoin.fr/ad-image/aecc0a8c97fe9b81cc1492989bc057ae52eddcda.jpg",
+          "https://img6.leboncoin.fr/ad-image/4889617ed68238da6a4551c29aca961ffc101fea.jpg",
+          "https://img7.leboncoin.fr/ad-image/72bc7bbe41aeae6e150b8b9257d3bd70a9a4e6c5.jpg"
+        ],
+        "urls_thumb": [
+          "https://img4.leboncoin.fr/ad-thumb/84e534ad0ea4d0f458f059b33837243893f1023e.jpg",
+          "https://img2.leboncoin.fr/ad-thumb/57b76df8c5ac0d58a227e24095cbbb1af6524cff.jpg",
+          "https://img3.leboncoin.fr/ad-thumb/aecc0a8c97fe9b81cc1492989bc057ae52eddcda.jpg",
+          "https://img6.leboncoin.fr/ad-thumb/4889617ed68238da6a4551c29aca961ffc101fea.jpg",
+          "https://img7.leboncoin.fr/ad-thumb/72bc7bbe41aeae6e150b8b9257d3bd70a9a4e6c5.jpg"
+        ],
+        "urls_large": [
+          "https://img4.leboncoin.fr/ad-large/84e534ad0ea4d0f458f059b33837243893f1023e.jpg",
+          "https://img2.leboncoin.fr/ad-large/57b76df8c5ac0d58a227e24095cbbb1af6524cff.jpg",
+          "https://img3.leboncoin.fr/ad-large/aecc0a8c97fe9b81cc1492989bc057ae52eddcda.jpg",
+          "https://img6.leboncoin.fr/ad-large/4889617ed68238da6a4551c29aca961ffc101fea.jpg",
+          "https://img7.leboncoin.fr/ad-large/72bc7bbe41aeae6e150b8b9257d3bd70a9a4e6c5.jpg"
+        ]
+      },
+      "location": {
+        "region_id": "12",
+        "region_name": "Ile-de-France",
+        "department_id": "77",
+        "department_name": "Seine-et-Marne",
+        "city_label": "Samoreau 77210",
+        "city": "Samoreau",
+        "zipcode": "77210",
+        "lat": 48.42374,
+        "lng": 2.75192,
+        "source": "city",
+        "provider": "lbc"
+      },
+      "attributes": [
+        {
+          "key": "fai_included",
+          "value": "1",
+          "key_label": "Frais d'agence inclus",
+          "value_label": "Oui",
+          "generic": true
+        },
+        {
+          "key": "real_estate_type",
+          "value": "1",
+          "key_label": "Type de bien",
+          "value_label": "Maison",
+          "generic": true
+        },
+        {
+          "key": "rooms",
+          "value": "6",
+          "key_label": "Pièces",
+          "value_label": "6",
+          "generic": true
+        },
+        {
+          "key": "square",
+          "value": "150",
+          "key_label": "Surface",
+          "value_label": "150",
+          "generic": true
+        },
+        {
+          "key": "custom_ref",
+          "value": "035_563",
+          "key_label": "Référence",
+          "value_label": "035_563",
+          "generic": true
+        },
+        {
+          "key": "ges",
+          "value": "c",
+          "key_label": "GES",
+          "value_label": "C (de 11 à 20)",
+          "generic": true
+        },
+        {
+          "key": "energy_rate",
+          "value": "e",
+          "key_label": "Classe énergie",
+          "value_label": "E (de 231 à 330)",
+          "generic": true
+        },
+        {
+          "key": "pro_rates_link",
+          "value": "https://www.immobilier.notaires.fr/fr/tarif-service-immobilier?office=3987",
+          "value_label": "https://www.immobilier.notaires.fr/fr/tarif-service-immobilier?office=3987",
+          "generic": false
+        }
+      ],
+      "owner": {
+        "store_id": "354640",
+        "user_id": "01756021-8361-4c0d-8499-ddba3995f340",
+        "type": "pro",
+        "name": "MES BONELLE & MORIN - NOTAIRES",
+        "siren": "322204306",
+        "pro_rates_link": "https://www.immobilier.notaires.fr/fr/tarif-service-immobilier?office=3987"
+      },
+      "options": {
+        "has_option": false,
+        "booster": false,
+        "photosup": false,
+        "urgent": false,
+        "gallery": false,
+        "sub_toplist": false
+      },
+      "has_phone": true
+    },
+    {
+      "list_id": 1321872207,
+      "index_date": "2017-10-19 07:16:21",
+      "category_id": "9",
+      "category_name": "Ventes immobilières",
+      "subject": "Maison 6 pièces 141 m²",
+      "body": "Centre Ville\n\nSamoreau village\nTrès belle maison indépendante de 141 m² hab édifiée sur un terrain de 674 m² entièrement clos et sans vis à vis avec ses deux terrasses\nAu rdc\nEntrée principale avec  cuisine equipée ouverte sur salon donnant accés sur la terrasse\nune salle de bain et un toilette avec lavabo\ndeux chambres dont une suite parentale avec dressing.\nA l'etage\ndeux belles chambres spacieuses \nune salle de bain à finir\ntoilette et comble en parfait etat idéal pour rangement \ngarage avec buanderie \nchauffage au gaz\ndouble vitrage \nabri de jardin\nla maison a ete agrandi en 2008 \nprevoir un ravalement de facade sur la partie agrandie \nDPE: C ET D\nDerbala M. mandataire immobilier Revolim\n0651732489\nref 1938\nRéférence annonce : 1938",
+      "ad_type": "offer",
+      "url": "https://www.leboncoin.fr/vi/1321872207.htm",
+      "price": [
+        327990
+      ],
+      "price_calendar": null,
+      "images": {
+        "thumb_url": "https://img7.leboncoin.fr/ad-thumb/520f0966e44050a4866e6fb33556d604f364e016.jpg",
+        "small_url": "https://img7.leboncoin.fr/ad-small/520f0966e44050a4866e6fb33556d604f364e016.jpg",
+        "nb_images": 5,
+        "urls": [
+          "https://img7.leboncoin.fr/ad-image/520f0966e44050a4866e6fb33556d604f364e016.jpg",
+          "https://img4.leboncoin.fr/ad-image/3c3b46fbb1b92b4dbdbaabf02c2c0aebd11da353.jpg",
+          "https://img1.leboncoin.fr/ad-image/547b7d91b4a6fd5b02cefcf455799d4a5d6a9a05.jpg",
+          "https://img2.leboncoin.fr/ad-image/e1b56997af2a2127321a1eb8f55f3ed4732687b4.jpg",
+          "https://img6.leboncoin.fr/ad-image/d5025069c7ad59c4ddfe751e54981ded72356ad6.jpg"
+        ],
+        "urls_thumb": [
+          "https://img7.leboncoin.fr/ad-thumb/520f0966e44050a4866e6fb33556d604f364e016.jpg",
+          "https://img4.leboncoin.fr/ad-thumb/3c3b46fbb1b92b4dbdbaabf02c2c0aebd11da353.jpg",
+          "https://img1.leboncoin.fr/ad-thumb/547b7d91b4a6fd5b02cefcf455799d4a5d6a9a05.jpg",
+          "https://img2.leboncoin.fr/ad-thumb/e1b56997af2a2127321a1eb8f55f3ed4732687b4.jpg",
+          "https://img6.leboncoin.fr/ad-thumb/d5025069c7ad59c4ddfe751e54981ded72356ad6.jpg"
+        ],
+        "urls_large": [
+          "https://img7.leboncoin.fr/ad-large/520f0966e44050a4866e6fb33556d604f364e016.jpg",
+          "https://img4.leboncoin.fr/ad-large/3c3b46fbb1b92b4dbdbaabf02c2c0aebd11da353.jpg",
+          "https://img1.leboncoin.fr/ad-large/547b7d91b4a6fd5b02cefcf455799d4a5d6a9a05.jpg",
+          "https://img2.leboncoin.fr/ad-large/e1b56997af2a2127321a1eb8f55f3ed4732687b4.jpg",
+          "https://img6.leboncoin.fr/ad-large/d5025069c7ad59c4ddfe751e54981ded72356ad6.jpg"
+        ]
+      },
+      "location": {
+        "region_id": "12",
+        "region_name": "Ile-de-France",
+        "department_id": "77",
+        "department_name": "Seine-et-Marne",
+        "city_label": "Samoreau 77210",
+        "city": "Samoreau",
+        "zipcode": "77210",
+        "lat": 48.42374,
+        "lng": 2.75192,
+        "source": "city",
+        "provider": "lbc"
+      },
+      "attributes": [
+        {
+          "key": "fai_included",
+          "value": "1",
+          "key_label": "Frais d'agence inclus",
+          "value_label": "Oui",
+          "generic": true
+        },
+        {
+          "key": "real_estate_type",
+          "value": "1",
+          "key_label": "Type de bien",
+          "value_label": "Maison",
+          "generic": true
+        },
+        {
+          "key": "rooms",
+          "value": "6",
+          "key_label": "Pièces",
+          "value_label": "6",
+          "generic": true
+        },
+        {
+          "key": "square",
+          "value": "141",
+          "key_label": "Surface",
+          "value_label": "141",
+          "generic": true
+        },
+        {
+          "key": "custom_ref",
+          "value": "1938",
+          "key_label": "Référence",
+          "value_label": "1938",
+          "generic": true
+        },
+        {
+          "key": "ges",
+          "value": "d",
+          "key_label": "GES",
+          "value_label": "D (de 21 à 35)",
+          "generic": true
+        },
+        {
+          "key": "energy_rate",
+          "value": "c",
+          "key_label": "Classe énergie",
+          "value_label": "C (de 91 à 150)",
+          "generic": true
+        }
+      ],
+      "owner": {
+        "store_id": "9241985",
+        "user_id": "5af75222-fb18-4f49-9aec-cf6de95a0770",
+        "type": "pro",
+        "name": "REVOLIM",
+        "siren": "789064722"
+      },
+      "options": {
+        "has_option": false,
+        "booster": false,
+        "photosup": false,
+        "urgent": false,
+        "gallery": false,
+        "sub_toplist": false
+      },
+      "has_phone": true
+    },
+    {
+      "list_id": 1138537334,
+      "index_date": "2017-10-18 11:08:22",
+      "category_id": "9",
+      "category_name": "Ventes immobilières",
+      "subject": "Terrain 475 m² Samoreau",
+      "body": "Vente Terrain 475 m²\n\nI@D France - Armelle MISIER (06 80 21 98 08) vous propose : Terrain constructible viabilisé,Rare sur Samoreau, situation exceptionnelle  à deux pas des commerces , de 475m2 environ!!!!\n\nHonoraires d'agence à la charge du vendeur. Bien non soumis au DPE. La présente annonce immobilière a été rédigée sous la responsabilité éditoriale de Mlle Armelle MISIER (ID 17891), Agent Commercial mandataire en immobilier immatriculé au Registre Spécial des Agents Commerciaux (RSAC) du Tribunal de Commerce de Melun sous le numéro 818337529.\nRéférence annonce : 425491\nNon soumis au DPE",
+      "ad_type": "offer",
+      "url": "https://www.leboncoin.fr/vi/1138537334.htm",
+      "price": [
+        131000
+      ],
+      "price_calendar": null,
+      "images": {
+        "thumb_url": "https://img1.leboncoin.fr/ad-thumb/06fe9aa94133fe68755733ed3c2a2cbe9a696420.jpg",
+        "small_url": "https://img1.leboncoin.fr/ad-small/06fe9aa94133fe68755733ed3c2a2cbe9a696420.jpg",
+        "nb_images": 3,
+        "urls": [
+          "https://img1.leboncoin.fr/ad-image/06fe9aa94133fe68755733ed3c2a2cbe9a696420.jpg",
+          "https://img2.leboncoin.fr/ad-image/a1dc74881cc3ca7cd21e37ed8d79ca968c6c464f.jpg",
+          "https://img5.leboncoin.fr/ad-image/1b18d07815da937575013abbe50c62faf3db41df.jpg"
+        ],
+        "urls_thumb": [
+          "https://img1.leboncoin.fr/ad-thumb/06fe9aa94133fe68755733ed3c2a2cbe9a696420.jpg",
+          "https://img2.leboncoin.fr/ad-thumb/a1dc74881cc3ca7cd21e37ed8d79ca968c6c464f.jpg",
+          "https://img5.leboncoin.fr/ad-thumb/1b18d07815da937575013abbe50c62faf3db41df.jpg"
+        ],
+        "urls_large": [
+          "https://img1.leboncoin.fr/ad-large/06fe9aa94133fe68755733ed3c2a2cbe9a696420.jpg",
+          "https://img2.leboncoin.fr/ad-large/a1dc74881cc3ca7cd21e37ed8d79ca968c6c464f.jpg",
+          "https://img5.leboncoin.fr/ad-large/1b18d07815da937575013abbe50c62faf3db41df.jpg"
+        ]
+      },
+      "location": {
+        "region_id": "12",
+        "region_name": "Ile-de-France",
+        "department_id": "77",
+        "department_name": "Seine-et-Marne",
+        "city_label": "Samoreau 77210",
+        "city": "Samoreau",
+        "zipcode": "77210",
+        "lat": 48.42374,
+        "lng": 2.75192,
+        "source": "city",
+        "provider": "lbc"
+      },
+      "attributes": [
+        {
+          "key": "real_estate_type",
+          "value": "3",
+          "key_label": "Type de bien",
+          "value_label": "Terrain",
+          "generic": true
+        },
+        {
+          "key": "square",
+          "value": "475",
+          "key_label": "Surface",
+          "value_label": "475",
+          "generic": true
+        },
+        {
+          "key": "custom_ref",
+          "value": "425491",
+          "key_label": "Référence",
+          "value_label": "425491",
+          "generic": true
+        },
+        {
+          "key": "pro_rates_link",
+          "value": "https://www.iadfrance.fr/bareme.pdf",
+          "value_label": "https://www.iadfrance.fr/bareme.pdf",
+          "generic": false
+        }
+      ],
+      "owner": {
+        "store_id": "18565046",
+        "user_id": "ac05aebb-19d2-4e9f-8257-6fa9c4902309",
+        "type": "pro",
+        "name": "I@D FRANCE",
+        "siren": "818337529",
+        "pro_rates_link": "https://www.iadfrance.fr/bareme.pdf"
+      },
+      "options": {
+        "has_option": false,
+        "booster": false,
+        "photosup": false,
+        "urgent": false,
+        "gallery": false,
+        "sub_toplist": false
+      },
+      "has_phone": true
+    },
+    {
+      "list_id": 1320271294,
+      "index_date": "2017-10-15 15:44:41",
+      "category_id": "9",
+      "category_name": "Ventes immobilières",
+      "subject": "Maison 6 pièces 181 m²",
+      "body": "Vente Maison/villa 6 pièces\n\nI@D France - Yvonne WERDIER (06 81 01 64 99) vous propose : A 10 minutes de Fontainebleau, j'ai le plaisir de vous présenter cette maison traditionnelle en excellent état et sans aucune mitoyenneté. Elle comporte un double séjour de 50m2 environ avec cheminée et accès direct vers la terrasse et le jardin de 837 m2 environ, une cuisine aménagée et équipée, 3 chambres dont une suite parentale de 23m2 environ, une salle de bain, deux salles d'eau, wc, dressing et une vaste pièce mansardée de plus de 40m2 environ. Elle offre un studio et un logement de type F2 avec des entrées séparées.Sous-sol total entièrement carrelé avec de nombreux rangements et garage pour 2 voitures. Possibilité de 2 stationnements supplémentaires.Commerces, écoles sur place et proches de la gare et des autoroutes.Venez la visiter sans tarder !\n\nHonoraires d'agence à la charge du vendeur.Information d'affichage énergétique sur ce bien : DPE D indice 188 et GES B indice 8. La présente annonce immobilière a été rédigée sous la responsabilité éditoriale de Mlle Yvonne WERDIER (ID 18810), Agent Commercial mandataire en immobilier immatriculé au Registre Spécial des Agents Commerciaux (RSAC) du Tribunal de Commerce de MELUN sous le numéro 819543067.\nRéférence annonce : 459208",
+      "ad_type": "offer",
+      "url": "https://www.leboncoin.fr/vi/1320271294.htm",
+      "price": [
+        399000
+      ],
+      "price_calendar": null,
+      "images": {
+        "thumb_url": "https://img2.leboncoin.fr/ad-thumb/5773c3bf34d43fe238507bef8890d85fdbee686e.jpg",
+        "small_url": "https://img2.leboncoin.fr/ad-small/5773c3bf34d43fe238507bef8890d85fdbee686e.jpg",
+        "nb_images": 8,
+        "urls": [
+          "https://img2.leboncoin.fr/ad-image/5773c3bf34d43fe238507bef8890d85fdbee686e.jpg",
+          "https://img1.leboncoin.fr/ad-image/297d042a46560ba74ca3a4a07c15cd4c879f9bff.jpg",
+          "https://img2.leboncoin.fr/ad-image/f3cf4d779b4446664da200447f428a8b2dd141c4.jpg",
+          "https://img7.leboncoin.fr/ad-image/687df4af15088f66dd492ba7b8d520385b85879e.jpg",
+          "https://img2.leboncoin.fr/ad-image/271c734b597d9036b9be8e6b265d508f655c7761.jpg",
+          "https://img2.leboncoin.fr/ad-image/5d2348fa02e878f75d7284de40db8528668db2f2.jpg",
+          "https://img7.leboncoin.fr/ad-image/75418a001db4a6a46b89a128a5389a0cc3b539ff.jpg",
+          "https://img2.leboncoin.fr/ad-image/0b17f71ca5950dd9fbaf4e6a2517a6ab8377d97c.jpg"
+        ],
+        "urls_thumb": [
+          "https://img2.leboncoin.fr/ad-thumb/5773c3bf34d43fe238507bef8890d85fdbee686e.jpg",
+          "https://img1.leboncoin.fr/ad-thumb/297d042a46560ba74ca3a4a07c15cd4c879f9bff.jpg",
+          "https://img2.leboncoin.fr/ad-thumb/f3cf4d779b4446664da200447f428a8b2dd141c4.jpg",
+          "https://img7.leboncoin.fr/ad-thumb/687df4af15088f66dd492ba7b8d520385b85879e.jpg",
+          "https://img2.leboncoin.fr/ad-thumb/271c734b597d9036b9be8e6b265d508f655c7761.jpg",
+          "https://img2.leboncoin.fr/ad-thumb/5d2348fa02e878f75d7284de40db8528668db2f2.jpg",
+          "https://img7.leboncoin.fr/ad-thumb/75418a001db4a6a46b89a128a5389a0cc3b539ff.jpg",
+          "https://img2.leboncoin.fr/ad-thumb/0b17f71ca5950dd9fbaf4e6a2517a6ab8377d97c.jpg"
+        ],
+        "urls_large": [
+          "https://img2.leboncoin.fr/ad-large/5773c3bf34d43fe238507bef8890d85fdbee686e.jpg",
+          "https://img1.leboncoin.fr/ad-large/297d042a46560ba74ca3a4a07c15cd4c879f9bff.jpg",
+          "https://img2.leboncoin.fr/ad-large/f3cf4d779b4446664da200447f428a8b2dd141c4.jpg",
+          "https://img7.leboncoin.fr/ad-large/687df4af15088f66dd492ba7b8d520385b85879e.jpg",
+          "https://img2.leboncoin.fr/ad-large/271c734b597d9036b9be8e6b265d508f655c7761.jpg",
+          "https://img2.leboncoin.fr/ad-large/5d2348fa02e878f75d7284de40db8528668db2f2.jpg",
+          "https://img7.leboncoin.fr/ad-large/75418a001db4a6a46b89a128a5389a0cc3b539ff.jpg",
+          "https://img2.leboncoin.fr/ad-large/0b17f71ca5950dd9fbaf4e6a2517a6ab8377d97c.jpg"
+        ]
+      },
+      "location": {
+        "region_id": "12",
+        "region_name": "Ile-de-France",
+        "department_id": "77",
+        "department_name": "Seine-et-Marne",
+        "city_label": "Samoreau 77210",
+        "city": "Samoreau",
+        "zipcode": "77210",
+        "lat": 48.42374,
+        "lng": 2.75192,
+        "source": "city",
+        "provider": "lbc"
+      },
+      "attributes": [
+        {
+          "key": "real_estate_type",
+          "value": "1",
+          "key_label": "Type de bien",
+          "value_label": "Maison",
+          "generic": true
+        },
+        {
+          "key": "rooms",
+          "value": "6",
+          "key_label": "Pièces",
+          "value_label": "6",
+          "generic": true
+        },
+        {
+          "key": "square",
+          "value": "181",
+          "key_label": "Surface",
+          "value_label": "181",
+          "generic": true
+        },
+        {
+          "key": "custom_ref",
+          "value": "459208",
+          "key_label": "Référence",
+          "value_label": "459208",
+          "generic": true
+        },
+        {
+          "key": "ges",
+          "value": "b",
+          "key_label": "GES",
+          "value_label": "B (de 6 à 10)",
+          "generic": true
+        },
+        {
+          "key": "energy_rate",
+          "value": "d",
+          "key_label": "Classe énergie",
+          "value_label": "D (de 151 à 230)",
+          "generic": true
+        },
+        {
+          "key": "pro_rates_link",
+          "value": "https://www.iadfrance.fr/bareme.pdf",
+          "value_label": "https://www.iadfrance.fr/bareme.pdf",
+          "generic": false
+        }
+      ],
+      "owner": {
+        "store_id": "20049202",
+        "user_id": "d892ca46-852c-4f87-bf3f-cba66abd33b5",
+        "type": "pro",
+        "name": "I@D FRANCE",
+        "siren": "819543067",
+        "pro_rates_link": "https://www.iadfrance.fr/bareme.pdf"
+      },
+      "options": {
+        "has_option": false,
+        "booster": false,
+        "photosup": false,
+        "urgent": false,
+        "gallery": false,
+        "sub_toplist": false
+      },
+      "has_phone": true
+    },
+    {
+      "list_id": 1319139976,
+      "index_date": "2017-10-13 12:23:47",
+      "category_id": "9",
+      "category_name": "Ventes immobilières",
+      "subject": "Maison 4 pièces 132 m²",
+      "body": "SAMOREAU, maison de 160m2 environ sur son terrain de 463m2. Elle offre au R.D.C. : une entrée, un magnifique salon cathédrale ouvrant sur une terrasse, une salle-à-manger, une cuisine, wc  , à l'étage 3 chambres et deux salles d'eau. Agréable jardin devant la maison. Maison libre en juillet 2017. \nChauffage gaz.\nHonoraires charge vendeur.\nRéférence annonce : 14612690\nLes honoraires sont à la charge du vendeur",
+      "ad_type": "offer",
+      "url": "https://www.leboncoin.fr/vi/1319139976.htm",
+      "price": [
+        330000
+      ],
+      "price_calendar": null,
+      "images": {
+        "thumb_url": "https://img2.leboncoin.fr/ad-thumb/65f83b4fe0a19147c8354633dfecb8c2e2fdd304.jpg",
+        "small_url": "https://img2.leboncoin.fr/ad-small/65f83b4fe0a19147c8354633dfecb8c2e2fdd304.jpg",
+        "nb_images": 8,
+        "urls": [
+          "https://img2.leboncoin.fr/ad-image/65f83b4fe0a19147c8354633dfecb8c2e2fdd304.jpg",
+          "https://img2.leboncoin.fr/ad-image/175f1b836a7d82683121377c065b237edeb44b29.jpg",
+          "https://img6.leboncoin.fr/ad-image/9957b7cf6e5bdd1bc555b878b28a5afdda128864.jpg",
+          "https://img4.leboncoin.fr/ad-image/0517d8c0fefd3bc91d64e9c13d8b3c24dee65e25.jpg",
+          "https://img7.leboncoin.fr/ad-image/454cd040d765f578a51a9d091b4ad761c35dd185.jpg",
+          "https://img3.leboncoin.fr/ad-image/65be5c5496e2d524770f3c6ba0c359c0be07e4ed.jpg",
+          "https://img2.leboncoin.fr/ad-image/2dc319c9e745620830c52ef400954f3214cc1cbe.jpg",
+          "https://img7.leboncoin.fr/ad-image/55472f1b633fca631ebcc9235101f9e06b9bc603.jpg"
+        ],
+        "urls_thumb": [
+          "https://img2.leboncoin.fr/ad-thumb/65f83b4fe0a19147c8354633dfecb8c2e2fdd304.jpg",
+          "https://img2.leboncoin.fr/ad-thumb/175f1b836a7d82683121377c065b237edeb44b29.jpg",
+          "https://img6.leboncoin.fr/ad-thumb/9957b7cf6e5bdd1bc555b878b28a5afdda128864.jpg",
+          "https://img4.leboncoin.fr/ad-thumb/0517d8c0fefd3bc91d64e9c13d8b3c24dee65e25.jpg",
+          "https://img7.leboncoin.fr/ad-thumb/454cd040d765f578a51a9d091b4ad761c35dd185.jpg",
+          "https://img3.leboncoin.fr/ad-thumb/65be5c5496e2d524770f3c6ba0c359c0be07e4ed.jpg",
+          "https://img2.leboncoin.fr/ad-thumb/2dc319c9e745620830c52ef400954f3214cc1cbe.jpg",
+          "https://img7.leboncoin.fr/ad-thumb/55472f1b633fca631ebcc9235101f9e06b9bc603.jpg"
+        ],
+        "urls_large": [
+          "https://img2.leboncoin.fr/ad-large/65f83b4fe0a19147c8354633dfecb8c2e2fdd304.jpg",
+          "https://img2.leboncoin.fr/ad-large/175f1b836a7d82683121377c065b237edeb44b29.jpg",
+          "https://img6.leboncoin.fr/ad-large/9957b7cf6e5bdd1bc555b878b28a5afdda128864.jpg",
+          "https://img4.leboncoin.fr/ad-large/0517d8c0fefd3bc91d64e9c13d8b3c24dee65e25.jpg",
+          "https://img7.leboncoin.fr/ad-large/454cd040d765f578a51a9d091b4ad761c35dd185.jpg",
+          "https://img3.leboncoin.fr/ad-large/65be5c5496e2d524770f3c6ba0c359c0be07e4ed.jpg",
+          "https://img2.leboncoin.fr/ad-large/2dc319c9e745620830c52ef400954f3214cc1cbe.jpg",
+          "https://img7.leboncoin.fr/ad-large/55472f1b633fca631ebcc9235101f9e06b9bc603.jpg"
+        ]
+      },
+      "location": {
+        "region_id": "12",
+        "region_name": "Ile-de-France",
+        "department_id": "77",
+        "department_name": "Seine-et-Marne",
+        "city_label": "Samoreau 77210",
+        "city": "Samoreau",
+        "zipcode": "77210",
+        "lat": 48.42374,
+        "lng": 2.75192,
+        "source": "city",
+        "provider": "lbc"
+      },
+      "attributes": [
+        {
+          "key": "real_estate_type",
+          "value": "1",
+          "key_label": "Type de bien",
+          "value_label": "Maison",
+          "generic": true
+        },
+        {
+          "key": "rooms",
+          "value": "4",
+          "key_label": "Pièces",
+          "value_label": "4",
+          "generic": true
+        },
+        {
+          "key": "square",
+          "value": "132",
+          "key_label": "Surface",
+          "value_label": "132",
+          "generic": true
+        },
+        {
+          "key": "custom_ref",
+          "value": "14612690",
+          "key_label": "Référence",
+          "value_label": "14612690",
+          "generic": true
+        },
+        {
+          "key": "ges",
+          "value": "e",
+          "key_label": "GES",
+          "value_label": "E (de 36 à 55)",
+          "generic": true
+        },
+        {
+          "key": "energy_rate",
+          "value": "e",
+          "key_label": "Classe énergie",
+          "value_label": "E (de 231 à 330)",
+          "generic": true
+        },
+        {
+          "key": "pro_rates_link",
+          "value": "http://www.hacquin-dauvergne.fr/honoraires/",
+          "value_label": "http://www.hacquin-dauvergne.fr/honoraires/",
+          "generic": false
+        }
+      ],
+      "owner": {
+        "store_id": "12265393",
+        "user_id": "040c7f76-22c5-451e-8507-a8079c2ea98a",
+        "type": "pro",
+        "name": "HACQUIN DAUVERGNE IMMOBILIER",
+        "siren": "403234529",
+        "pro_rates_link": "http://www.hacquin-dauvergne.fr/honoraires/"
+      },
+      "options": {
+        "has_option": false,
+        "booster": false,
+        "photosup": false,
+        "urgent": false,
+        "gallery": false,
+        "sub_toplist": false
+      },
+      "has_phone": true
+    },
+    {
+      "list_id": 1136423009,
+      "index_date": "2017-10-13 09:45:07",
+      "category_id": "9",
+      "category_name": "Ventes immobilières",
+      "subject": "Terrain 583 m² Samoreau",
+      "body": "Vente Terrain 583 m²\n\nI@D France - Armelle MISIER (06 80 21 98 08) vous propose : Terrain constructible proche centre ville dans zone pavillonnaire de 583m2 environ avec plus de 26 mètres de façade.\n\nHonoraires d'agence à la charge du vendeur. Bien non soumis au DPE. La présente annonce immobilière a été rédigée sous la responsabilité éditoriale de Mlle Armelle MISIER (ID 17891), Agent Commercial mandataire en immobilier immatriculé au Registre Spécial des Agents Commerciaux (RSAC) du Tribunal de Commerce de Melun sous le numéro 818337529.\nRéférence annonce : 430035\nNon soumis au DPE",
+      "ad_type": "offer",
+      "url": "https://www.leboncoin.fr/vi/1136423009.htm",
+      "price": [
+        106000
+      ],
+      "price_calendar": null,
+      "images": {
+        "thumb_url": "https://img6.leboncoin.fr/ad-thumb/4750f14ae8ac606d1283dd947ff65eb4824ca086.jpg",
+        "small_url": "https://img6.leboncoin.fr/ad-small/4750f14ae8ac606d1283dd947ff65eb4824ca086.jpg",
+        "nb_images": 2,
+        "urls": [
+          "https://img6.leboncoin.fr/ad-image/4750f14ae8ac606d1283dd947ff65eb4824ca086.jpg",
+          "https://img0.leboncoin.fr/ad-image/17ccf0c87254cba62f47967a78622d1a061d1e2f.jpg"
+        ],
+        "urls_thumb": [
+          "https://img6.leboncoin.fr/ad-thumb/4750f14ae8ac606d1283dd947ff65eb4824ca086.jpg",
+          "https://img0.leboncoin.fr/ad-thumb/17ccf0c87254cba62f47967a78622d1a061d1e2f.jpg"
+        ],
+        "urls_large": [
+          "https://img6.leboncoin.fr/ad-large/4750f14ae8ac606d1283dd947ff65eb4824ca086.jpg",
+          "https://img0.leboncoin.fr/ad-large/17ccf0c87254cba62f47967a78622d1a061d1e2f.jpg"
+        ]
+      },
+      "location": {
+        "region_id": "12",
+        "region_name": "Ile-de-France",
+        "department_id": "77",
+        "department_name": "Seine-et-Marne",
+        "city_label": "Samoreau 77210",
+        "city": "Samoreau",
+        "zipcode": "77210",
+        "lat": 48.42374,
+        "lng": 2.75192,
+        "source": "city",
+        "provider": "lbc"
+      },
+      "attributes": [
+        {
+          "key": "real_estate_type",
+          "value": "3",
+          "key_label": "Type de bien",
+          "value_label": "Terrain",
+          "generic": true
+        },
+        {
+          "key": "square",
+          "value": "583",
+          "key_label": "Surface",
+          "value_label": "583",
+          "generic": true
+        },
+        {
+          "key": "custom_ref",
+          "value": "430035",
+          "key_label": "Référence",
+          "value_label": "430035",
+          "generic": true
+        },
+        {
+          "key": "pro_rates_link",
+          "value": "https://www.iadfrance.fr/bareme.pdf",
+          "value_label": "https://www.iadfrance.fr/bareme.pdf",
+          "generic": false
+        }
+      ],
+      "owner": {
+        "store_id": "18565046",
+        "user_id": "ac05aebb-19d2-4e9f-8257-6fa9c4902309",
+        "type": "pro",
+        "name": "I@D FRANCE",
+        "siren": "818337529",
+        "pro_rates_link": "https://www.iadfrance.fr/bareme.pdf"
+      },
+      "options": {
+        "has_option": false,
+        "booster": false,
+        "photosup": false,
+        "urgent": false,
+        "gallery": false,
+        "sub_toplist": false
+      },
+      "has_phone": true
+    },
+    {
+      "list_id": 1319140062,
+      "index_date": "2017-10-13 09:15:28",
+      "category_id": "9",
+      "category_name": "Ventes immobilières",
+      "subject": "Maison 9 pièces 221 m²",
+      "body": "SAMOREAU, maison récente divisée en deux vastes appartements totalement indépendants. L'un au R.D.C. avec entrée, séjour, cuisine, 4 chambres, salle de bains, wc, terrasse et jardin, l'autre au-dessus avec entrée, séjour, cuisine aménagée, 3 chambres, salle-de-bains, wc , terrasse et jardinet. Pas de travaux à prévoir.\nIdéale deux familles ou investisseur \nHonoraires charge acquéreur\nRéférence annonce : 15851194\nLe prix indiqué comprend les honoraires à la charge de l'acheteur : 4,00% TTC du prix du bien hors honoraires\nPrix hors honoraires : 315 000 €",
+      "ad_type": "offer",
+      "url": "https://www.leboncoin.fr/vi/1319140062.htm",
+      "price": [
+        328125
+      ],
+      "price_calendar": null,
+      "images": {
+        "thumb_url": "https://img3.leboncoin.fr/ad-thumb/26077c639776dd6e7d92f33d8356c2b0f287e730.jpg",
+        "small_url": "https://img3.leboncoin.fr/ad-small/26077c639776dd6e7d92f33d8356c2b0f287e730.jpg",
+        "nb_images": 6,
+        "urls": [
+          "https://img3.leboncoin.fr/ad-image/26077c639776dd6e7d92f33d8356c2b0f287e730.jpg",
+          "https://img7.leboncoin.fr/ad-image/9c41b8b9b4c2beaed7ea70d7bfac32cb3bb3073b.jpg",
+          "https://img7.leboncoin.fr/ad-image/30b327f9aa9ba3c513bc31a9396ea54653f90e83.jpg",
+          "https://img1.leboncoin.fr/ad-image/f2832848f2ccfd34c1e3d3d9b8937487581b8546.jpg",
+          "https://img1.leboncoin.fr/ad-image/19a31c7db8455f2cd8fbfaff567833a6d2d68dc9.jpg",
+          "https://img2.leboncoin.fr/ad-image/2a86e7872955bf044decc61b92636cdab4b552ce.jpg"
+        ],
+        "urls_thumb": [
+          "https://img3.leboncoin.fr/ad-thumb/26077c639776dd6e7d92f33d8356c2b0f287e730.jpg",
+          "https://img7.leboncoin.fr/ad-thumb/9c41b8b9b4c2beaed7ea70d7bfac32cb3bb3073b.jpg",
+          "https://img7.leboncoin.fr/ad-thumb/30b327f9aa9ba3c513bc31a9396ea54653f90e83.jpg",
+          "https://img1.leboncoin.fr/ad-thumb/f2832848f2ccfd34c1e3d3d9b8937487581b8546.jpg",
+          "https://img1.leboncoin.fr/ad-thumb/19a31c7db8455f2cd8fbfaff567833a6d2d68dc9.jpg",
+          "https://img2.leboncoin.fr/ad-thumb/2a86e7872955bf044decc61b92636cdab4b552ce.jpg"
+        ],
+        "urls_large": [
+          "https://img3.leboncoin.fr/ad-large/26077c639776dd6e7d92f33d8356c2b0f287e730.jpg",
+          "https://img7.leboncoin.fr/ad-large/9c41b8b9b4c2beaed7ea70d7bfac32cb3bb3073b.jpg",
+          "https://img7.leboncoin.fr/ad-large/30b327f9aa9ba3c513bc31a9396ea54653f90e83.jpg",
+          "https://img1.leboncoin.fr/ad-large/f2832848f2ccfd34c1e3d3d9b8937487581b8546.jpg",
+          "https://img1.leboncoin.fr/ad-large/19a31c7db8455f2cd8fbfaff567833a6d2d68dc9.jpg",
+          "https://img2.leboncoin.fr/ad-large/2a86e7872955bf044decc61b92636cdab4b552ce.jpg"
+        ]
+      },
+      "location": {
+        "region_id": "12",
+        "region_name": "Ile-de-France",
+        "department_id": "77",
+        "department_name": "Seine-et-Marne",
+        "city_label": "Samoreau 77210",
+        "city": "Samoreau",
+        "zipcode": "77210",
+        "lat": 48.42374,
+        "lng": 2.75192,
+        "source": "city",
+        "provider": "lbc"
+      },
+      "attributes": [
+        {
+          "key": "fai_included",
+          "value": "1",
+          "key_label": "Frais d'agence inclus",
+          "value_label": "Oui",
+          "generic": true
+        },
+        {
+          "key": "real_estate_type",
+          "value": "1",
+          "key_label": "Type de bien",
+          "value_label": "Maison",
+          "generic": true
+        },
+        {
+          "key": "rooms",
+          "value": "9",
+          "key_label": "Pièces",
+          "value_label": "9",
+          "generic": true
+        },
+        {
+          "key": "square",
+          "value": "221",
+          "key_label": "Surface",
+          "value_label": "221",
+          "generic": true
+        },
+        {
+          "key": "custom_ref",
+          "value": "15851194",
+          "key_label": "Référence",
+          "value_label": "15851194",
+          "generic": true
+        },
+        {
+          "key": "ges",
+          "value": "d",
+          "key_label": "GES",
+          "value_label": "D (de 21 à 35)",
+          "generic": true
+        },
+        {
+          "key": "energy_rate",
+          "value": "c",
+          "key_label": "Classe énergie",
+          "value_label": "C (de 91 à 150)",
+          "generic": true
+        },
+        {
+          "key": "pro_rates_link",
+          "value": "http://www.hacquin-dauvergne.fr/honoraires/",
+          "value_label": "http://www.hacquin-dauvergne.fr/honoraires/",
+          "generic": false
+        }
+      ],
+      "owner": {
+        "store_id": "12265393",
+        "user_id": "040c7f76-22c5-451e-8507-a8079c2ea98a",
+        "type": "pro",
+        "name": "HACQUIN DAUVERGNE IMMOBILIER",
+        "siren": "403234529",
+        "pro_rates_link": "http://www.hacquin-dauvergne.fr/honoraires/"
+      },
+      "options": {
+        "has_option": false,
+        "booster": false,
+        "photosup": false,
+        "urgent": false,
+        "gallery": false,
+        "sub_toplist": false
+      },
+      "has_phone": true
+    },
+    {
+      "list_id": 1318559651,
+      "index_date": "2017-10-12 19:21:13",
+      "category_id": "9",
+      "category_name": "Ventes immobilières",
+      "subject": "Terrains à bâtir Samoreau",
+      "body": "A vendre 2 terrains à bâtir de 483 m² chacun, mitoyens.\nÉcole, commerces, gare, bus, maison de la santé à proximité.\n110 000 € l'un, possibilité d'acquérir les deux.",
+      "ad_type": "offer",
+      "url": "https://www.leboncoin.fr/vi/1318559651.htm",
+      "price": [
+        110000
+      ],
+      "price_calendar": null,
+      "images": {
+        "thumb_url": "https://img2.leboncoin.fr/ad-thumb/dcac860a50a5b0c6681d0c9f6347a0bf9bb4cbe9.jpg",
+        "small_url": "https://img2.leboncoin.fr/ad-small/dcac860a50a5b0c6681d0c9f6347a0bf9bb4cbe9.jpg",
+        "nb_images": 3,
+        "urls": [
+          "https://img2.leboncoin.fr/ad-image/dcac860a50a5b0c6681d0c9f6347a0bf9bb4cbe9.jpg",
+          "https://img0.leboncoin.fr/ad-image/f7140aea89a7fcdb4c569d185a63fa3aaa2e5a6d.jpg",
+          "https://img1.leboncoin.fr/ad-image/8a7925397095e68261b318fdf0ff3aa13435417c.jpg"
+        ],
+        "urls_thumb": [
+          "https://img2.leboncoin.fr/ad-thumb/dcac860a50a5b0c6681d0c9f6347a0bf9bb4cbe9.jpg",
+          "https://img0.leboncoin.fr/ad-thumb/f7140aea89a7fcdb4c569d185a63fa3aaa2e5a6d.jpg",
+          "https://img1.leboncoin.fr/ad-thumb/8a7925397095e68261b318fdf0ff3aa13435417c.jpg"
+        ],
+        "urls_large": [
+          "https://img2.leboncoin.fr/ad-large/dcac860a50a5b0c6681d0c9f6347a0bf9bb4cbe9.jpg",
+          "https://img0.leboncoin.fr/ad-large/f7140aea89a7fcdb4c569d185a63fa3aaa2e5a6d.jpg",
+          "https://img1.leboncoin.fr/ad-large/8a7925397095e68261b318fdf0ff3aa13435417c.jpg"
+        ]
+      },
+      "location": {
+        "region_id": "12",
+        "region_name": "Ile-de-France",
+        "department_id": "77",
+        "department_name": "Seine-et-Marne",
+        "city_label": "Samoreau 77210",
+        "city": "Samoreau",
+        "zipcode": "77210",
+        "lat": 48.42374,
+        "lng": 2.75192,
+        "source": "user",
+        "provider": "lbc"
+      },
+      "attributes": [
+        {
+          "key": "real_estate_type",
+          "value": "3",
+          "key_label": "Type de bien",
+          "value_label": "Terrain",
+          "generic": true
+        },
+        {
+          "key": "square",
+          "value": "483",
+          "key_label": "Surface",
+          "value_label": "483",
+          "generic": true
+        }
+      ],
+      "owner": {
+        "store_id": "21037304",
+        "user_id": "60a9ef5d-3fb2-48e8-a7ca-2c8eb2e087ac",
+        "type": "private",
+        "name": "Brunello",
+        "no_salesmen": true
+      },
+      "options": {
+        "has_option": false,
+        "booster": false,
+        "photosup": false,
+        "urgent": false,
+        "gallery": false,
+        "sub_toplist": false
+      },
+      "has_phone": true
+    },
+    {
+      "list_id": 1108316695,
+      "index_date": "2017-10-03 08:45:03",
+      "category_id": "9",
+      "category_name": "Ventes immobilières",
+      "subject": "Terrain 395 m² Samoreau",
+      "body": "Samoreau\n\nTrès beau terrain constructible d'environ 400 m2, viabilisé en EAU, EDF et tout à l'égout . Eric FENCZYSZYN 06.84.35.13.38. ***\nNon soumis au DPE\nPrix hors honoraires : 99 000 €",
+      "ad_type": "offer",
+      "url": "https://www.leboncoin.fr/vi/1108316695.htm",
+      "price": [
+        99000
+      ],
+      "price_calendar": null,
+      "images": {
+        "thumb_url": "https://img4.leboncoin.fr/ad-thumb/a14ccba08888d55d0433389b3bfd108ba5e1d74c.jpg",
+        "small_url": "https://img4.leboncoin.fr/ad-small/a14ccba08888d55d0433389b3bfd108ba5e1d74c.jpg",
+        "nb_images": 1,
+        "urls": [
+          "https://img4.leboncoin.fr/ad-image/a14ccba08888d55d0433389b3bfd108ba5e1d74c.jpg"
+        ],
+        "urls_thumb": [
+          "https://img4.leboncoin.fr/ad-thumb/a14ccba08888d55d0433389b3bfd108ba5e1d74c.jpg"
+        ],
+        "urls_large": [
+          "https://img4.leboncoin.fr/ad-large/a14ccba08888d55d0433389b3bfd108ba5e1d74c.jpg"
+        ]
+      },
+      "location": {
+        "region_id": "12",
+        "region_name": "Ile-de-France",
+        "department_id": "77",
+        "department_name": "Seine-et-Marne",
+        "city_label": "Samoreau 77210",
+        "city": "Samoreau",
+        "zipcode": "77210",
+        "lat": 48.42374,
+        "lng": 2.75192,
+        "source": "city",
+        "provider": "lbc"
+      },
+      "attributes": [
+        {
+          "key": "fai_included",
+          "value": "1",
+          "key_label": "Frais d'agence inclus",
+          "value_label": "Oui",
+          "generic": true
+        },
+        {
+          "key": "real_estate_type",
+          "value": "3",
+          "key_label": "Type de bien",
+          "value_label": "Terrain",
+          "generic": true
+        },
+        {
+          "key": "square",
+          "value": "395",
+          "key_label": "Surface",
+          "value_label": "395",
+          "generic": true
+        },
+        {
+          "key": "custom_ref",
+          "value": "496",
+          "key_label": "Référence",
+          "value_label": "496",
+          "generic": true
+        },
+        {
+          "key": "pro_rates_link",
+          "value": "http://www.3a-conseil.net/i/redac/honoraires?honofor=1",
+          "value_label": "http://www.3a-conseil.net/i/redac/honoraires?honofor=1",
+          "generic": false
+        }
+      ],
+      "owner": {
+        "store_id": "14301127",
+        "user_id": "f5655874-40dc-4943-90a4-ff876f041b48",
+        "type": "pro",
+        "name": "3A CONSEIL",
+        "siren": "532300001",
+        "pro_rates_link": "http://www.3a-conseil.net/i/redac/honoraires?honofor=1"
+      },
+      "options": {
+        "has_option": false,
+        "booster": false,
+        "photosup": false,
+        "urgent": false,
+        "gallery": false,
+        "sub_toplist": false
+      },
+      "has_phone": true
+    }
+  ]
+}
