@@ -56,19 +56,6 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <Compile Include="Parsing.fs" />
-    <Compile Include="Result.fs" />
-    <None Include="lbc_search_request.json" />
-    <None Include="lbc_search_response.json" />
-    <None Include="leboncoin.fsx" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-  </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5.2'">
       <ItemGroup>
@@ -91,4 +78,22 @@
       </ItemGroup>
     </When>
   </Choose>
+  <ItemGroup>
+    <Compile Include="Parsing.fs" />
+    <Compile Include="Result.fs" />
+    <None Include="lbc_search_request.json" />
+    <None Include="lbc_search_response.json" />
+    <None Include="leboncoin.fsx" />
+    <None Include="papfr.fsx" />
+    <Content Include="papfr.raw.txt" />
+    <None Include="papfr_search_response.json" />
+    <None Include="seloger.fsx" />
+    <Content Include="seloger.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
 </Project>
