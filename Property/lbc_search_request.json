@@ -1,0 +1,91 @@
+[
+  {
+    "sort_order": "desc",
+    "filters": {
+      "category": { "id": "9X" },
+      "enums": { "ad_type": [ "offer" ] },
+      "keywords": {},
+      "location": {
+        "area": {
+          "lat": 0.1,
+          "lng": 0.1,
+          "radius": 0.1
+        },
+        "city_zipcodes": [
+          {
+            "city": "Samoreau",
+            "zipcode": "77210X"
+          }
+        ],
+        "region": "12X",
+        "department_near": false,
+        "region_near": false
+      },
+      "owner": {},
+      "ranges": {}
+    },
+    "sort_by": "time",
+    "owner_type": "all",
+    "pivot": "X,X,X",
+    "limit": 20,
+    "limit_alu": 2
+  },
+  {
+    "sort_order": "desc",
+    "filters": {
+      "category": {},
+      "enums": { "ad_type": [ "offer" ] },
+      "keywords": {
+        "text": "lego technic",
+        "type": "all"
+      },
+      "location": {
+        "area": {
+          "lat": 0.0,
+          "lng": 0.0,
+          "radius": 0
+        },
+        "city_zipcodes": [],
+        "department_near": false,
+        "region_near": false
+      },
+      "owner": {},
+      "ranges": {}
+    },
+    "sort_by": "time",
+    "owner_type": "all",
+    "pivot": "0,0,0X",
+    "limit": 20,
+    "limit_alu": 2
+  },
+  {
+    "sort_order": "desc",
+    "filters": {
+      "category": {},
+      "enums": { "ad_type": [ "offer" ] },
+      "keywords": {
+        "text": "lego technic",
+        "type": "all"
+      },
+      "location": {
+        "area": {
+          "lat": 0.0,
+          "lng": 0.0,
+          "radius": 0
+        },
+        "city_zipcodes": [],
+        "department": "77X",
+        "region": "12X",
+        "department_near": false,
+        "region_near": false
+      },
+      "owner": {},
+      "ranges": {}
+    },
+    "sort_by": "time",
+    "owner_type": "all",
+    "pivot": "0,0,0X",
+    "limit": 20,
+    "limit_alu": 2
+  }
+]
