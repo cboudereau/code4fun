@@ -26,4 +26,4 @@ let get kinds (InseeCode codeInsee) =
     |> fun x -> x.Annonces
     |> Array.map (fun x -> x.Libelle, x.Longitude, x.Latitude, x.PermaLien)
 
-get [Appartment] (InseeCode 750102)
+get [Appartment] (InseeCode 750102) |> Seq.length

@@ -81,6 +81,7 @@
   <ItemGroup>
     <Compile Include="Parsing.fs" />
     <Compile Include="Result.fs" />
+    <Compile Include="Leboncoin.fs" />
     <None Include="lbc_search_request.json" />
     <None Include="lbc_search_response.json" />
     <None Include="leboncoin.fsx" />
@@ -89,6 +90,7 @@
     <None Include="papfr_search_response.json" />
     <None Include="seloger.fsx" />
     <Content Include="seloger.xml" />
+    <Content Include="TODO.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

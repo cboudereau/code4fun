@@ -1,0 +1,42 @@
+﻿# Maps/Places/Traffic
+
+MAPS : 
+https://google-developers.appspot.com/places/web-service/search
+
+Maps traffic : https://www.onboardinformatics.com/blog/predicting-future-travel-times-google-maps-apis
+
+INRIX : 
+http://docs.parkme.com/authentication/getting_authorized/
+
+-----------------------------------------------------------------
+# Data
+
+Base des codes postaux : 
+https://www.data.gouv.fr/fr/datasets/base-officielle-des-codes-postaux/
+
+SIREN : 
+http://www.data.gouv.fr/fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/
+
+- Fichier complet + update quotidienne
+
+Internet Fibre optique : 
+https://public.opendatasoft.com/explore/dataset/reseaux-en-fibre-optique-jusqua-labonne-ftth/api/
+
+écoles (toutes confondues) : 
+https://public.opendatasoft.com/explore/dataset/equipement-ponctuel-enseignement-education/
+
+logement vide :
+https://public.opendatasoft.com/explore/dataset/oqpio/
+
+et sur data.gouv : http://www.data.gouv.fr/fr/datasets/
+
+----------------------------------------------------------------------
+# Storage :
+Data geo spatial (geo correlated database)
+ComosDB : €0.2109 GB/month
+https://azure.microsoft.com/en-us/pricing/details/cosmos-db/
+
+Azure storage : 
+https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+
+€0.0166 GB/month
